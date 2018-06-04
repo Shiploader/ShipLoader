@@ -1,12 +1,52 @@
-﻿<Window x:Class="ShipLoader.UI.MainWindow"
+﻿<Window
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ShipLoader.UI"
+        xmlns:API="clr-namespace:ShipLoader.API;assembly=ShipLoader.API" x:Class="ShipLoader.UI.MainWindow"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
-        
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="58*"/>
+            <ColumnDefinition Width="735*"/>
+        </Grid.ColumnDefinitions>
+        <Button Content="Start Raft&#xD;&#xA;" HorizontalAlignment="Right" VerticalAlignment="Bottom" Height="22" Margin="5,0,5,5" Grid.Column="1" Width="100" Click="Button_Click"/>
+        <ProgressBar Height="22" Margin="5,0,110,5" VerticalAlignment="Bottom" Value="20" Grid.ColumnSpan="2" Foreground="#FF0C7AC7"/>
+        <TabControl Grid.ColumnSpan="2" Margin="0,0,0,50">
+            <TabItem Header="News">
+
+            </TabItem>
+            <TabItem Header="Mods" Height="22" VerticalAlignment="Bottom">
+                <Grid Background="#FFE5E5E5">
+                    <Grid HorizontalAlignment="Left" Margin="239,112,0,0" VerticalAlignment="Top"/>
+                    <DataGrid x:Name="ModMetadataTable" ItemsSource="{Binding Metadata}">
+                        <DataGrid.Columns>
+
+                            <DataGridCheckBoxColumn Binding="{Binding Metadata.IsEnabled}" ClipboardContentBinding="{x:Null}" Header="Enabled?"/>
+                            <DataGridTextColumn Binding="{Binding Metadata.ModName}" ClipboardContentBinding="{x:Null}" Header="Mod"/>
+                            <DataGridTextColumn Binding="{Binding Metadata.ModVersion}" ClipboardContentBinding="{x:Null}" Header="Version"/>
+                            <DataGridTextColumn Binding="{Binding Metadata.AuthorName}" ClipboardContentBinding="{x:Null}" Header="Author"/>
+                            <DataGridTextColumn Binding="{Binding Metadata.ModDescription}" ClipboardContentBinding="{x:Null}" Header="Description"/>
+
+                        </DataGrid.Columns>
+                        <DataGrid.DataContext>
+                            <API:Mod/>
+                        </DataGrid.DataContext>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Community">
+
+            </TabItem>
+            <TabItem Header="Console">
+                <TextBox x:Name="ConsoleTextBox"/>
+            </TabItem>
+            <TabItem Header="Settings">
+                <StackPanel Height="100" Width="100"/>
+            </TabItem>
+            <TextBox TextWrapping="Wrap" Text="TextBox"/>
+        </TabControl>
     </Grid>
 </Window>
