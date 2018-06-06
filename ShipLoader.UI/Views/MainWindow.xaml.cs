@@ -9,6 +9,7 @@ using System.Windows;
 using mscoree;
 using System.Threading.Tasks;
 using System.Threading;
+using NLog.Config;
 
 namespace ShipLoader.UI
 {
@@ -55,8 +56,6 @@ namespace ShipLoader.UI
 		{
 			InitializeComponent();
 
-			Log.InitializeLogger(ConsoleTextBox);
-
 			modLoader.LoadMods();
 
 			ModMetadataTable.DataContext = typeof(Mod);
@@ -69,12 +68,12 @@ namespace ShipLoader.UI
 
 		private void Button_Click(object sender, RoutedEventArgs e)
 		{
-			if(string.IsNullOrEmpty(Launcher.Default.RaftExePath))
+			if (string.IsNullOrEmpty(Launcher.Default.RaftExePath))
 			{
 				OpenFileDialog openFileDialog = new OpenFileDialog();
 				if (openFileDialog.ShowDialog() == true)
 					Launcher.Default.RaftExePath = openFileDialog.FileName;
-		}
+			}
 			else
 			{
 				ProcessStartInfo info = new ProcessStartInfo(Launcher.Default.RaftExePath);
@@ -85,38 +84,45 @@ namespace ShipLoader.UI
 				info.UseShellExecute = false;
 
 				Process raftProcess = Process.Start(info);
+				PollForMono(raftProcess);
 
-				Thread.Sleep(5000);
+				ProcessStartInfo harpoonInfo = new ProcessStartInfo("Harpoon.exe", $"-penetrate {raftProcess.Id} \"Harpoon.Dll.dll\"");
+				harpoonInfo.RedirectStandardError = true;
+				harpoonInfo.RedirectStandardInput = true;
+				harpoonInfo.RedirectStandardOutput = true;
+				harpoonInfo.UseShellExecute = false;
 
-				// geting the handle of the process - with required privileges
-				IntPtr procHandle = OpenProcess(PROCESS_CREATE_THREAD | PROCESS_QUERY_INFORMATION | PROCESS_VM_OPERATION | PROCESS_VM_WRITE | PROCESS_VM_READ, false, raftProcess.Id);
+				var injectedProcess = Process.Start(harpoonInfo);
 
-				// searching for the address of LoadLibraryA and storing it in a pointer
-				IntPtr loadLibraryAddr = GetProcAddress(GetModuleHandle("kernel32.dll"), "LoadLibraryA");
+				injectedProcess.OutputDataReceived += (sendr, msg) => {
+					NLog.LogManager.GetLogger("harpoon").Log(NLog.LogLevel.Info, msg.Data);
+				};
 
-				// name of the dll we want to inject
-				string dllName = "ShipLoader.Injector.dll";
 
-				// alocating some memory on the target process - enough to store the name of the dll
-				// and storing its address in a pointer
-				IntPtr allocMemAddress = VirtualAllocEx(procHandle, IntPtr.Zero, (uint)((dllName.Length + 1) * Marshal.SizeOf(typeof(char))), MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+				injectedProcess.Exited += (jawatjonge, ex) =>
+				{
+					raftProcess.Close();
+					MessageBox.Show("Mod injector has not succeeded in fucking us over. thanks Nelus");
+				};
+			}
+		}
 
-				// writing the name of the dll there
-				UIntPtr bytesWritten;
-				WriteProcessMemory(procHandle, allocMemAddress, Encoding.Default.GetBytes(dllName), (uint)((dllName.Length + 1) * Marshal.SizeOf(typeof(char))), out bytesWritten);
+		void PollForMono(Process process)
+		{
+			Thread.Sleep(1000);
 
-				// creating a thread that will call LoadLibraryA with allocMemAddress as argument
-				CreateRemoteThread(procHandle, IntPtr.Zero, 0, loadLibraryAddr, allocMemAddress, 0, IntPtr.Zero);
-
-				for(int i = 0; i < raftProcess.Modules.Count; i++) {
-					Log.PrintLine("loaded module '{0}' correctly!", raftProcess.Modules[i].ModuleName);
+			do
+			{
+				for (int i = 0; i < process.Modules.Count; i++)
+				{
+					if (process.Modules[i].ModuleName == "mono.dll")
+					{
+						return;
+					}
 				}
 
-				loadLibraryAddr = GetProcAddress(GetModuleHandle("ShipLoader.Injector.dll"), "ShipLoader.Injector.InjectedInstance.ExitApplication");
-
-				CreateRemoteThread(procHandle, IntPtr.Zero, 0, loadLibraryAddr, IntPtr.Zero, 0, IntPtr.Zero);
-
-			}
+				Thread.Sleep(100);
+			} while (true);
 		}
 	}
 }

@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ShipLoader.UI"
         xmlns:API="clr-namespace:ShipLoader.API;assembly=ShipLoader.API" x:Class="ShipLoader.UI.MainWindow"
+        xmlns:nlog ="clr-namespace:NlogViewer;assembly=NlogViewer"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
@@ -16,7 +17,7 @@
         <ProgressBar Height="22" Margin="5,0,110,5" VerticalAlignment="Bottom" Value="20" Grid.ColumnSpan="2" Foreground="#FF0C7AC7"/>
         <TabControl Grid.ColumnSpan="2" Margin="0,0,0,50">
             <TabItem Header="News">
-
+                <WebBrowser Source="https://github.com/shiploader"/>
             </TabItem>
             <TabItem Header="Mods" Height="22" VerticalAlignment="Bottom">
                 <Grid Background="#FFE5E5E5">
@@ -41,12 +42,12 @@
 
             </TabItem>
             <TabItem Header="Console">
-                <TextBox x:Name="ConsoleTextBox"/>
+                <nlog:NlogViewer x:Name="logCtrl" />
             </TabItem>
             <TabItem Header="Settings">
-                <StackPanel Height="100" Width="100"/>
             </TabItem>
             <TextBox TextWrapping="Wrap" Text="TextBox"/>
         </TabControl>
+        <TextBlock HorizontalAlignment="Left" Margin="5,0,0,32" TextWrapping="Wrap" Text="Minecraft 1.4.1 is ready to launch!" VerticalAlignment="Bottom" Grid.ColumnSpan="2" Width="232"/>
     </Grid>
 </Window>
