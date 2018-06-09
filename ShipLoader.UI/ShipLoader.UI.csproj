@@ -116,21 +116,14 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Harpoon.Core\Harpoon.Core.csproj">
+      <Project>{883c4b5b-df41-49bd-8efe-567f1dbd793d}</Project>
+      <Name>Harpoon.Core</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ShipLoader.API\ShipLoader.API.csproj">
       <Project>{e5296c0b-b41a-45be-83cb-c41e7c77f7b6}</Project>
       <Name>ShipLoader.API</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <COMReference Include="mscoree">
-      <Guid>{5477469E-83B1-11D2-8B49-00A0C9B7C9C4}</Guid>
-      <VersionMajor>2</VersionMajor>
-      <VersionMinor>4</VersionMinor>
-      <Lcid>0</Lcid>
-      <WrapperTool>tlbimp</WrapperTool>
-      <Isolated>False</Isolated>
-      <EmbedInteropTypes>True</EmbedInteropTypes>
-    </COMReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

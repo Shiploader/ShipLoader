@@ -28,8 +28,8 @@ LPVOID allocString(HANDLE process, std::string str) {
 	return remote;
 }
 
-void Harpoon::hook(DWORD processId, std::string dllPath) {
-
+void Harpoon::hook(DWORD processId, std::string dllPath) 
+{
 	std::string dllName = dllPath.substr(dllPath.find_last_of('\\') + 1);
 	std::string dllBase = dllPath.substr(0, dllPath.find_last_of('\\'));
 
@@ -136,7 +136,6 @@ int main(int argc, char *argv[]) {
 		if (id == 0) return help("Syntax: -hook <pId> <dllPath>", false);
 
 		Harpoon::hook((DWORD)id, dll);
-		system("pause");
 		return 1;
 	}
 

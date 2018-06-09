@@ -63,8 +63,15 @@ extern "C" __declspec(dllexport) DWORD initialize(LPVOID param)
 #endif
 		goto failed;
 	}
+	printf("initializing Harpoon.Core");
 
-	ptr->Initialize();
+	if (FAILED(res = ptr->Initialize()))
+	{
+#ifdef __DEBUG_MODE__
+		printf("fuck life and everything around it\n");
+#endif
+		goto failed;
+	}
 	goto succeeded;
 
 failed:

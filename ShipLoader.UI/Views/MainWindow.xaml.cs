@@ -52,22 +52,15 @@ namespace ShipLoader.UI
 				Process raftProcess = Process.Start(info);
 				PollForMono(raftProcess);
 
-				ProcessStartInfo harpoonInfo = new ProcessStartInfo("Harpoon.exe", $"-hook {raftProcess.Id} \"Harpoon.Dll.dll\"");
-				harpoonInfo.RedirectStandardError = true;
-				harpoonInfo.RedirectStandardInput = true;
-				harpoonInfo.RedirectStandardOutput = true;
-				harpoonInfo.UseShellExecute = false;
+				ProcessStartInfo harpoonInfo = new ProcessStartInfo("Harpoon.exe", $"-hook {raftProcess.Id} HarpoonLoader.dll");
+				//harpoonInfo.RedirectStandardError = true;
+				//harpoonInfo.RedirectStandardInput = true;
+				//harpoonInfo.RedirectStandardOutput = true;
 
 				var injectedProcess = Process.Start(harpoonInfo);
 
 				injectedProcess.OutputDataReceived += (sendr, msg) => {
-				};
-
-
-				injectedProcess.Exited += (jawatjonge, ex) =>
-				{
-					raftProcess.Close();
-					MessageBox.Show("Mod injector has not succeeded in fucking us over. thanks Nelus");
+					Console.WriteLine(msg.Data);
 				};
 			}
 		}

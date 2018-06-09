@@ -42,11 +42,21 @@ namespace ShipLoader.UI
 
 			foreach(string modLoc in modFiles)
 			{
-				Assembly asm = Assembly.LoadFile(modLoc);
-				
-				if(asm.GetTypes().Count(x => x.IsSubclassOf(typeof(Mod))) > 0)
+				try
 				{
-					assembliesFound.Add(asm);
+					if (modLoc.EndsWith(".dll"))
+					{
+						Assembly asm = Assembly.LoadFile(modLoc);
+
+						if (asm.GetTypes().Count(x => x.IsSubclassOf(typeof(Mod))) > 0)
+						{
+							assembliesFound.Add(asm);
+						}
+					}
+				}
+				catch
+				{
+					
 				}
 			}
 

@@ -43,5 +43,11 @@
     <Compile Include="Mod.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Harpoon.Core\Harpoon.Core.csproj">
+      <Project>{883c4b5b-df41-49bd-8efe-567f1dbd793d}</Project>
+      <Name>Harpoon.Core</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

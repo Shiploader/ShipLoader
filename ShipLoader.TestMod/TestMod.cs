@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace ShipLoader.TestMod
 {
@@ -18,5 +19,13 @@ namespace ShipLoader.TestMod
 			ModDescription = "This is a ShipLoader test mod!",
 			ModVersion = "0.1"
 		};
+
+		public override void Initialize()
+		{
+			Console.WriteLine("creating cube...");
+			GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+			cube.transform.position = Camera.main.transform.position + (Camera.main.transform.forward * 2);
+			GameObject.DontDestroyOnLoad(cube);
+		}
 	}
 }

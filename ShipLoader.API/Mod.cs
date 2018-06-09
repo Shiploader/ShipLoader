@@ -25,16 +25,19 @@ namespace ShipLoader.API
 		public string AuthorName { get; set; }
 	}
 
-    public class Mod
+    public class Mod : IInitializable
     {
 		public virtual ModMetadata Metadata
-			=> new ModMetadata()
-			{
+			=> new ModMetadata() {
 				AuthorName = "Invalid",
 				IsEnabled = false,
 				ModDescription = "Invalid",
 				ModName = "Invalid",
 				ModVersion = "0.0.0"
 			};
+
+		public virtual void Initialize()
+		{
+		}
 	}
 }
