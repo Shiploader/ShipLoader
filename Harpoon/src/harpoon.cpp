@@ -1,43 +1,96 @@
+#define PSAPI_VERSION 1
 #include "harpoon.h"
 #include <locale>
 #include <codecvt>
 #include <assert.h>
 #include <process.h>
 #include <fstream>
+#include <psapi.h>
+#pragma comment(lib, "Psapi.lib")
 using namespace hp;
 
-void check(void *func, char *str) {
+template<typename T>
+void check(T func, char *str) {
 
-	if (func == nullptr) {
+	if (func == 0) {
 		printf("%s\n", str);
 		assert(false && "Error thrown");
 	}
 }
 
-void Harpoon::penetrate(DWORD processId, std::string dllPath) {
+LPVOID allocString(HANDLE process, std::string str) {
+
+	DWORD size = (DWORD) str.size() + 1;
+	LPVOID remote = VirtualAllocEx(process, NULL, size, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+	check(remote, "Couldn't allocate space into process");
+	check(WriteProcessMemory(process, remote, (PVOID) str.c_str(), size, NULL), "Couldn't write string into memory");
+
+	return remote;
+}
+
+void Harpoon::hook(DWORD processId, std::string dllPath) {
+
+	std::string dllName = dllPath.substr(dllPath.find_last_of('\\') + 1);
+	std::string dllBase = dllPath.substr(0, dllPath.find_last_of('\\'));
+
+	//Figure out where the initialize function is located in the dll
+	//So we can run it later
+
+	HMODULE loc = LoadLibraryA(dllPath.c_str());
+	printf("Checking for library at path %s\n", dllPath.c_str());
+	check(loc, "Can't load dll");
+
+	FARPROC dllFunc = GetProcAddress(loc, "initialize");
+	check(dllFunc, "Can't load dll function");
+
+	size_t dllFuncOff = (size_t)dllFunc - (size_t)loc;
+	printf("%s::initialize found at %p\n", dllPath.c_str(), (void*) dllFuncOff);
 
 	//Get process
-	HANDLE process = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_CREATE_THREAD | PROCESS_VM_OPERATION | PROCESS_VM_READ | PROCESS_VM_WRITE, FALSE, processId);
+	HANDLE process = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_CREATE_THREAD | PROCESS_VM_OPERATION | PROCESS_VM_WRITE | PROCESS_VM_READ, FALSE, processId);
 	check(process, "Couldn't open process");
 
 	//Copy the string into the other process
-	DWORD size = (DWORD) dllPath.size() + 1;
-	LPVOID remote = VirtualAllocEx(process, NULL, size, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
-	check(remote, "Couldn't allocate space into process");
-	check((void*)WriteProcessMemory(process, remote, (PVOID) dllPath.c_str(), size, NULL), "Couldn't write string into memory");
+	LPVOID dllStr = allocString(process, dllPath);
 
 	//Load the dll into memory
-	LPTHREAD_START_ROUTINE loadLibraryProc = (LPTHREAD_START_ROUTINE) GetProcAddress(GetModuleHandle("kernel32.dll"), "LoadLibraryA");
+	PTHREAD_START_ROUTINE loadLibraryProc = (PTHREAD_START_ROUTINE) GetProcAddress(GetModuleHandle(TEXT("Kernel32")), "LoadLibraryA");
 	check(loadLibraryProc, "Couldn't get 'load library'");
 
 	//Run the load library function
-	HANDLE thread = CreateRemoteThread(process, NULL, 0, loadLibraryProc, remote, 0, NULL);
+	HANDLE thread = CreateRemoteThread(process, NULL, 0, loadLibraryProc, dllStr, 0, NULL);
 	check(thread, "Couldn't start library on remote process");
 
 	//Wait for it to finish and stop
 	WaitForSingleObject(thread, INFINITE);
 
-	VirtualFreeEx(process, remote, 0, MEM_RELEASE);
+	//Check if it was successfully injected
+
+	HMODULE handles[2048];
+	DWORD needed = 0;
+	EnumProcessModules(process, handles, sizeof(handles), &needed);
+
+	for (int i = 0; i < needed / sizeof(handles[0]); ++i) {
+
+		char name[1024];
+		GetModuleBaseName(process, handles[i], name, sizeof(name));
+
+		if (std::string(name) == dllName) {
+
+			PTHREAD_START_ROUTINE remoteInitialize = (PTHREAD_START_ROUTINE)(((char*) handles[i]) + dllFuncOff);
+
+			printf("Found injected DLL in process (%s with address %p)\n", name, (void*) handles[i]);
+			printf("Running initialize at %p\n", remoteInitialize);
+
+			HANDLE dllThread = CreateRemoteThread(process, NULL, 0, remoteInitialize, NULL, 0, NULL);
+			check(dllThread, "Couldn't run initialize on remote thread");
+
+			WaitForSingleObject(dllThread, INFINITE);
+			CloseHandle(dllThread);
+		}
+	}
+
+	VirtualFreeEx(process, dllStr, 0, MEM_RELEASE);
 	CloseHandle(thread);
 	CloseHandle(process);
 
@@ -50,7 +103,7 @@ int help(std::string error, bool showDefault = true) {
 	if (showDefault) {
 
 		printf("Commands:\n");
-		printf("-penetrate <pId> <dllPath>\nPenetrates Harpoon into an exe, to hook it so you can execute code.\n");
+		printf("-hook <pId> <dllPath>\nHooks Harpoon into an exe, to hook it so you can execute code.\n");
 
 	}
 
@@ -62,26 +115,28 @@ int main(int argc, char *argv[]) {
 	if (argc < 2)
 		return help("Not enough arguments");
 
-	std::string currentProcessName = argv[0];
-
-	std::string cwd = currentProcessName.substr(0, currentProcessName.find_last_of('\\'));
-
 	std::string arg = argv[1];
 
-	if (arg == "-penetrate") {
+	char fullPathBuffer[MAX_PATH];
 
-		if (argc < 4) return help("Syntax: -penetrate <pId> <dllPath>", false);
+	int bytes = GetModuleFileName(NULL, fullPathBuffer, sizeof(fullPathBuffer));
+
+	std::string fullPath = fullPathBuffer;
+	fullPath = fullPath.substr(0, fullPath.find_last_of('\\'));
+
+	if (arg == "-hook") {
+
+		if (argc < 4) return help("Syntax: -hook <pId> <dllPath>", false);
 
 		std::string pid = argv[2];
-		std::string dll = argv[3];
-
-		dll = cwd + "\\" + dll;
+		std::string dll = fullPath + "\\" + argv[3];
 
 		int id = std::stoi(pid);
 
-		if (id == 0) return help("Syntax: -penetrate <pId> <dllPath>", false);
+		if (id == 0) return help("Syntax: -hook <pId> <dllPath>", false);
 
-		Harpoon::penetrate((DWORD)id, dll);
+		Harpoon::hook((DWORD)id, dll);
+		system("pause");
 		return 1;
 	}
 

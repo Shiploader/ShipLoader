@@ -5,7 +5,6 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ShipLoader.UI"
         xmlns:API="clr-namespace:ShipLoader.API;assembly=ShipLoader.API" x:Class="ShipLoader.UI.MainWindow"
-        xmlns:nlog ="clr-namespace:NlogViewer;assembly=NlogViewer"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
@@ -24,13 +23,11 @@
                     <Grid HorizontalAlignment="Left" Margin="239,112,0,0" VerticalAlignment="Top"/>
                     <DataGrid x:Name="ModMetadataTable" ItemsSource="{Binding Metadata}">
                         <DataGrid.Columns>
-
                             <DataGridCheckBoxColumn Binding="{Binding Metadata.IsEnabled}" ClipboardContentBinding="{x:Null}" Header="Enabled?"/>
                             <DataGridTextColumn Binding="{Binding Metadata.ModName}" ClipboardContentBinding="{x:Null}" Header="Mod"/>
                             <DataGridTextColumn Binding="{Binding Metadata.ModVersion}" ClipboardContentBinding="{x:Null}" Header="Version"/>
                             <DataGridTextColumn Binding="{Binding Metadata.AuthorName}" ClipboardContentBinding="{x:Null}" Header="Author"/>
                             <DataGridTextColumn Binding="{Binding Metadata.ModDescription}" ClipboardContentBinding="{x:Null}" Header="Description"/>
-
                         </DataGrid.Columns>
                         <DataGrid.DataContext>
                             <API:Mod/>
@@ -39,10 +36,8 @@
                 </Grid>
             </TabItem>
             <TabItem Header="Community">
-
             </TabItem>
             <TabItem Header="Console">
-                <nlog:NlogViewer x:Name="logCtrl" />
             </TabItem>
             <TabItem Header="Settings">
             </TabItem>
