@@ -261,3 +261,5 @@ paket-files/
 __pycache__/
 *.pyc
 ShipLoader.InjectDll/libraries/
+*.exp
+*.dll
