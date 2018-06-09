@@ -26,36 +26,55 @@ public class HarpoonCore : IInitializable
     {
 		try
 		{
-			Console.WriteLine("loading assemblies...");
+			Console.WriteLine("Loading assemblies...");
+            
+            //These are just 'reflective' assemblies. They aren't executed.
+			List<Assembly> mods = new List<Assembly>();
+            List<Assembly> deps = new List<Assembly>();
 
-			List<Assembly> assembliesFound = new List<Assembly>();
+            //Check for dlls
+			Console.WriteLine("Scanning " + Directory.GetCurrentDirectory() + "\\mods");
+			string[] dlls = Directory.GetFiles(Directory.GetCurrentDirectory() + "\\mods", "*.dll");
 
-			Console.WriteLine("getting folder...");
-			string[] modFiles = Directory.GetFiles(Directory.GetCurrentDirectory() + "/mods");
-
-			foreach (string modLoc in modFiles)
+            //Categorize the dlls on if they have an Initializable
+			foreach (string dllLoc in dlls)
 			{
-				try
-				{
-					if (modLoc.EndsWith(".dll"))
-					{
-						Assembly asm = Assembly.LoadFile(modLoc);
 
-						if (asm.GetTypes().Count(x => x.IsSubclassOf(typeof(IInitializable))) > 0)
-						{
-							assembliesFound.Add(asm);
-						}
-						Console.WriteLine("loaded mod '" + modLoc + "'...");
-					}
-				}
-				catch
-				{
+                try
+                {
+                    //Check what category this belongs into
 
-				}
+                    Assembly asm = Assembly.ReflectionOnlyLoad(dllLoc);
+
+                    if (asm.GetTypes().Count(x => x.IsSubclassOf(typeof(IInitializable))) > 0)
+                    {
+                        mods.Add(asm);
+                        Console.WriteLine("Found mod " + dllLoc);
+                    }
+                    else
+                    {
+                        deps.Add(asm);
+                        Console.WriteLine("Found dependency " + dllLoc);
+                    }
+                }
+                catch (ReflectionTypeLoadException e)
+                {
+                    Console.WriteLine("Couldn't load dll (" + dllLoc + "): ");
+
+                    foreach (Exception ex in e.LoaderExceptions)
+                        Console.WriteLine(ex.ToString());
+                }
+                catch(Exception e)
+                {
+                    Console.WriteLine("Couldn't load dll (" + dllLoc + "): " + e.ToString());
+                }
 			}
 
+            //Load dependencies
 
-			foreach (Assembly a in assembliesFound)
+            //Right now it just loads all mods in alphabetical order
+            //But the better way would be to sort them on dependency
+			foreach (Assembly a in mods)
 			{
 				Type[] types = a.GetTypes()
 					.Where(x => x.IsSubclassOf(typeof(IInitializable)))
@@ -63,7 +82,7 @@ public class HarpoonCore : IInitializable
 
 				foreach (Type t in types)
 				{
-					Console.WriteLine("initializing initializable '" + t.ToString() + "'...");
+					Console.WriteLine("Initializing initializable '" + t.ToString() + "'...");
 
 					IInitializable m = (IInitializable)Activator.CreateInstance(t);
 					if (m != null)

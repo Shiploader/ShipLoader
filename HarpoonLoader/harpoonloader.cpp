@@ -63,12 +63,12 @@ extern "C" __declspec(dllexport) DWORD initialize(LPVOID param)
 #endif
 		goto failed;
 	}
-	printf("initializing Harpoon.Core");
+	printf("Initializing Harpoon.Core\n");
 
 	if (FAILED(res = ptr->Initialize()))
 	{
 #ifdef __DEBUG_MODE__
-		printf("fuck life and everything around it\n");
+		printf("Couldn't call initialize from Harpoon.Core\n");
 #endif
 		goto failed;
 	}
@@ -81,6 +81,9 @@ failed:
 #ifdef __DEBUG_MODE__
 	printf("%s\n", error.c_str());
 	fclose(fp);
+
+	while (true);
+
 	FreeConsole();
 #endif
 
@@ -94,6 +97,9 @@ succeeded:
 #ifdef __DEBUG_MODE__
 	printf("Successfully created C# instance");
 	fclose(fp);
+
+	while (true);
+
 	FreeConsole();
 #endif
 
