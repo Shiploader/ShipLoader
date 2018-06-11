@@ -50,6 +50,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Harpoon.Core\Harpoon.Core.csproj">
+      <Project>{883c4b5b-df41-49bd-8efe-567f1dbd793d}</Project>
+      <Name>Harpoon.Core</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ShipLoader.API\ShipLoader.API.csproj">
       <Project>{e5296c0b-b41a-45be-83cb-c41e7c77f7b6}</Project>
       <Name>ShipLoader.API</Name>

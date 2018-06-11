@@ -50,7 +50,7 @@ extern "C" __declspec(dllexport) DWORD initialize(LPVOID param)
 
 	CLSID clsid;
 
-	if (FAILED(res = CLSIDFromProgID(OLESTR("HarpoonCore"), &clsid))) {
+	if (FAILED(res = CLSIDFromProgID(OLESTR("Harpoon.Core.HarpoonCore"), &clsid))) {
 #ifdef __DEBUG_MODE__
 		printf("Couldn't get HarpoonCore\n");
 #endif

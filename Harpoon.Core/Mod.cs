@@ -4,7 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 
-namespace ShipLoader.API
+namespace Harpoon.Core
 {
 	public class ModMetadata
 	{
@@ -24,19 +24,10 @@ namespace ShipLoader.API
 		public string AuthorName { get; set; }
 	}
 
-    public class Mod : IInitializable
+    public interface IMod
     {
-		public virtual ModMetadata Metadata
-			=> new ModMetadata() {
-				AuthorName = "Invalid",
-				IsEnabled = false,
-				ModDescription = "Invalid",
-				ModName = "Invalid",
-				ModVersion = "0.0.0"
-			};
+        ModMetadata Metadata { get; }
 
-		public virtual void Initialize()
-		{
-		}
+        void Initialize();
 	}
 }

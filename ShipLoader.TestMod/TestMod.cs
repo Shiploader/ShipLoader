@@ -1,4 +1,4 @@
-﻿using ShipLoader.API;
+﻿using Harpoon.Core;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -8,10 +8,11 @@ using UnityEngine;
 
 namespace ShipLoader.TestMod
 {
-    public class TestMod : Mod
+
+    public class TestMod : MonoBehaviour, IMod
     {
 		[DisplayName("Metadata")]
-		public override ModMetadata Metadata => new ModMetadata()
+		public ModMetadata Metadata => new ModMetadata()
 		{
 			AuthorName = "Veld",
 			ModName = "Test Mod",
@@ -19,12 +20,12 @@ namespace ShipLoader.TestMod
 			ModVersion = "0.1"
 		};
 
-		public override void Initialize()
+		public void Initialize()
 		{
-			Console.WriteLine("creating cube...");
-			GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
-			cube.transform.position = Camera.main.transform.position + (Camera.main.transform.forward * 2);
-			GameObject.DontDestroyOnLoad(cube);
-		}
+
+            GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            cube.transform.position = Camera.main.transform.position + (Camera.main.transform.forward * 2);
+            GameObject.DontDestroyOnLoad(cube);
+        }
 	}
 }
