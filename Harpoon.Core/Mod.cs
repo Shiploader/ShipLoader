@@ -24,10 +24,19 @@ namespace Harpoon.Core
 		public string AuthorName { get; set; }
 	}
 
-    public interface IMod
-    {
-        ModMetadata Metadata { get; }
+	public class Mod
+	{
+		public virtual ModMetadata Metadata =>
+			new ModMetadata {
+				AuthorName = "Your Name",
+				ModDescription = "A new beginning to a wonderful mod!",
+				ModName = "New Mod",
+				ModVersion = "0.0.0"
+			};
 
-        void Initialize();
+        public virtual void Initialize()
+		{
+
+		}
 	}
 }

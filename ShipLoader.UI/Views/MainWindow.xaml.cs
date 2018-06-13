@@ -1,5 +1,4 @@
 ﻿using Microsoft.Win32;
-using ShipLoader.API;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -8,6 +7,8 @@ using System.Text;
 using System.Windows;
 using System.Threading.Tasks;
 using System.Threading;
+using Harpoon.Core;
+using System.IO;
 
 namespace ShipLoader.UI
 {
@@ -42,17 +43,22 @@ namespace ShipLoader.UI
 			}
 			else
 			{
+				string folder = Launcher.Default.RaftExePath.Substring(0, Launcher.Default.RaftExePath.LastIndexOf("\\"));
+
 				ProcessStartInfo info = new ProcessStartInfo(Launcher.Default.RaftExePath);
 				info.RedirectStandardError = true;
 				info.RedirectStandardInput = true;
 				info.RedirectStandardOutput = true;
-
+				info.WorkingDirectory = folder;
 				info.UseShellExecute = false;
 
 				Process raftProcess = Process.Start(info);
+
 				PollForMono(raftProcess);
 
-				ProcessStartInfo harpoonInfo = new ProcessStartInfo("Harpoon.exe", $"-hook {raftProcess.Id} HarpoonLoader.dll");
+				ProcessStartInfo harpoonInfo = new ProcessStartInfo(Directory.GetCurrentDirectory() + "\\Harpoon.exe", $"-hook {raftProcess.Id} HarpoonLoader.dll");
+				harpoonInfo.WorkingDirectory = folder;
+
 				//harpoonInfo.RedirectStandardError = true;
 				//harpoonInfo.RedirectStandardInput = true;
 				//harpoonInfo.RedirectStandardOutput = true;
@@ -67,7 +73,7 @@ namespace ShipLoader.UI
 
 		void PollForMono(Process process)
 		{
-			Thread.Sleep(1000);
+			Thread.Sleep(10000);
 
 			do
 			{

@@ -168,8 +168,6 @@ failed:
 	printf("%s\n", error.c_str());
 	fclose(fp);
 
-	Sleep(10000);
-
 	FreeConsole();
 #endif
 

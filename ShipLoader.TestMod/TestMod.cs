@@ -41,10 +41,10 @@ namespace ShipLoader.TestMod
 
     }
 
-    public class TestMod : IMod
-    {
+    public class TestMod : Mod
+	{
 		[DisplayName("Metadata")]
-		public ModMetadata Metadata => new ModMetadata()
+		public override ModMetadata Metadata => new ModMetadata()
 		{
 			AuthorName = "Veld",
 			ModName = "Test Mod",
@@ -52,7 +52,7 @@ namespace ShipLoader.TestMod
 			ModVersion = "0.1"
 		};
 
-		public void Initialize()
+		public override void Initialize()
         {
             Console.WriteLine("Creating plane");
             GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Cube);

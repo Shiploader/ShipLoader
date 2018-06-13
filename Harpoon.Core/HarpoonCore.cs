@@ -61,7 +61,7 @@ namespace Harpoon.Core
 
                             Assembly asm = Assembly.LoadFile(mod);
 
-                            if (asm.GetTypes().Count(x => typeof(IMod).IsAssignableFrom(x)) > 0)
+                            if (asm.GetTypes().Count(x => typeof(Mod).IsAssignableFrom(x)) > 0)
                             {
                                 mods.Add(asm);
                                 Console.WriteLine("Found mod " + mod);
@@ -86,14 +86,14 @@ namespace Harpoon.Core
                 foreach (Assembly a in mods)
                 {
                     Type[] types = a.GetTypes()
-                        .Where(x => typeof(IMod).IsAssignableFrom(x))
+                        .Where(x => typeof(Mod).IsAssignableFrom(x))
                         .ToArray();
 
                     foreach (Type t in types)
                     {
                         Console.WriteLine("Loading mod '" + t.ToString() + "'...");
 
-                        IMod m = (IMod) Activator.CreateInstance(t);
+						Mod m = (Mod)Activator.CreateInstance(t);
                         if (m != null)
                         {
                             try
