@@ -155,6 +155,7 @@ extern "C" __declspec(dllexport) DWORD initialize(LPVOID param) {
 		goto failed;
 	}
 
+	//Invoke method
 	mono_runtime_invoke(monoMethod, NULL, NULL, NULL);
 
 	goto succeeded;
@@ -182,8 +183,6 @@ succeeded:
 #ifdef __DEBUG_MODE__
 	printf("Successfully created C# instance");
 	fclose(fp);
-
-	Sleep(2000);
 
 	FreeConsole();
 #endif

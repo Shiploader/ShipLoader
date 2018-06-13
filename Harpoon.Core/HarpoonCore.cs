@@ -61,9 +61,6 @@ namespace Harpoon.Core
 
                             Assembly asm = Assembly.LoadFile(mod);
 
-                            foreach (Type t in asm.GetTypes().Where(x => typeof(IMod).IsAssignableFrom(x)))
-                                Console.WriteLine("Garbage: " + t.FullName);
-
                             if (asm.GetTypes().Count(x => typeof(IMod).IsAssignableFrom(x)) > 0)
                             {
                                 mods.Add(asm);
@@ -94,7 +91,7 @@ namespace Harpoon.Core
 
                     foreach (Type t in types)
                     {
-                        Console.WriteLine("Initializing initializable '" + t.ToString() + "'...");
+                        Console.WriteLine("Loading mod '" + t.ToString() + "'...");
 
                         IMod m = (IMod) Activator.CreateInstance(t);
                         if (m != null)
