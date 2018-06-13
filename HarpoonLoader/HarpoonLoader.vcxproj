@@ -97,7 +97,8 @@
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PreBuildEvent>
-      <Command>"%Windir%\Microsoft.NET\Framework64\v4.0.30319\regasm" "$(SolutionDir)Build\Harpoon.Core.dll"  /tlb "$(SolutionDir)Build\$(TargetName).tlb"  /codebase</Command>
+      <Command>
+      </Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -115,7 +116,8 @@
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PreBuildEvent>
-      <Command>"%Windir%\Microsoft.NET\Framework64\v4.0.30319\regasm" "$(SolutionDir)Build\Harpoon.Core.dll"  /tlb "$(SolutionDir)Build\$(TargetName).tlb"  /codebase</Command>
+      <Command>
+      </Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

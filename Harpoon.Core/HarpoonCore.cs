@@ -9,23 +9,11 @@ using System.Threading;
 
 namespace Harpoon.Core
 {
-
-    [ComVisible(true)]
-    public interface IInitializable
+    
+    public class HarpoonCore
     {
-        void Initialize();
-    }
 
-    [ComVisible(true)]
-    [ClassInterface(ClassInterfaceType.None)]
-    public class HarpoonCore : IInitializable
-    {
-        public HarpoonCore()
-        {
-
-        }
-
-        public void Initialize()
+        public static void Initialize()
         {
             try
             {
