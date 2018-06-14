@@ -22,6 +22,11 @@ namespace Harpoon.Core
 
 		[DisplayName("Author")]
 		public string AuthorName { get; set; }
+
+        public override string ToString()
+        {
+            return ModName + " version " + ModVersion + " by " + AuthorName + " (" + ModDescription + ")";
+        }
 	}
 
 	public class Mod

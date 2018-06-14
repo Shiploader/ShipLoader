@@ -13,6 +13,16 @@ namespace Harpoon.Core
     public class HarpoonCore
     {
 
+        private static Dictionary<string, Mod> mods = new Dictionary<string, Mod>();
+
+        public static Mod GetMod(string name)
+        {
+            if (!mods.ContainsKey(name))
+                return null;
+
+            return mods[name];
+        }
+
         public static void Initialize()
         {
             try
@@ -20,7 +30,7 @@ namespace Harpoon.Core
                 Console.WriteLine("Loading assemblies...");
 
                 //These are just 'reflective' assemblies. They aren't executed.
-                List<Assembly> mods = new List<Assembly>();
+                List<Assembly> modAssemblies = new List<Assembly>();
 
                 //Check for dlls
                 Console.WriteLine("Scanning " + Directory.GetCurrentDirectory() + "\\mods");
@@ -63,7 +73,7 @@ namespace Harpoon.Core
 
                             if (asm.GetTypes().Count(x => typeof(Mod).IsAssignableFrom(x)) > 0)
                             {
-                                mods.Add(asm);
+                                modAssemblies.Add(asm);
                                 Console.WriteLine("Found mod " + mod);
                             }
                         }
@@ -83,7 +93,7 @@ namespace Harpoon.Core
 
                 //Right now it just loads all mods in alphabetical order
                 //But the better way would be to sort them on dependency
-                foreach (Assembly a in mods)
+                foreach (Assembly a in modAssemblies)
                 {
                     Type[] types = a.GetTypes()
                         .Where(x => typeof(Mod).IsAssignableFrom(x))
@@ -96,9 +106,19 @@ namespace Harpoon.Core
 						Mod m = (Mod)Activator.CreateInstance(t);
                         if (m != null)
                         {
+                            if (mods.ContainsKey(m.Metadata.ModName))
+                            {
+                                Console.WriteLine("Overlapping mods:");
+                                Console.WriteLine(mods[m.Metadata.ModName].ToString());
+                                Console.WriteLine(m.Metadata.ToString());
+                                Console.WriteLine("Keeping first version...");
+                                continue;
+                            }
+
                             try
                             {
                                 m.Initialize();
+                                mods[m.Metadata.ModName] = m;
                             }
                             catch (Exception e)
                             {

@@ -1,10 +1,8 @@
 ﻿using Harpoon.Core;
+using ShipLoader.API;
 using System.ComponentModel;
 using UnityEngine;
-using System.Reflection;
 using System;
-using System.Collections.Generic;
-using System.IO;
 
 namespace ShipLoader.TestMod
 {
@@ -13,35 +11,12 @@ namespace ShipLoader.TestMod
     {
 
         public void Start() {
-            
-            FieldInfo allAvailableItemsf = typeof(ItemManager).GetField("allAvailableItems", BindingFlags.NonPublic | BindingFlags.Static);
 
-            Console.WriteLine("Getting 'allAvailableItems' FieldInfo");
-            if (allAvailableItemsf == null)
-                return;
-
-            object allAvailableItems = allAvailableItemsf.GetValue(null);
-
-            Console.WriteLine("Getting 'allAvailableItems' value");
-            if (allAvailableItems == null)
-                return;
-
-            List<String> lines = new List<String>();
-            List<Item_Base> items = (List<Item_Base>) allAvailableItems;
-
-            Console.WriteLine("Getting 'items'");
-
-            foreach (Item_Base ib in items)
-                lines.Add(ib.UniqueIndex + " " + ib.name  + ", durability=" + ib.MaxUses + ", stacksize=" + ib.settings_Inventory.StackSize);
-
-            Console.WriteLine("Writing 'items'");
-
-            File.WriteAllLines("Items.txt", lines.ToArray());
         }
 
     }
 
-    public class TestMod : Mod
+    public class TestMod : RaftMod
 	{
 		[DisplayName("Metadata")]
 		public override ModMetadata Metadata => new ModMetadata()
@@ -60,6 +35,12 @@ namespace ShipLoader.TestMod
 
             Console.WriteLine("Creating component");
             sphere.AddComponent<TestModInterface>();
+
+            ModHelper.Init();
+
+            Item garbage = AddItem(new Item("Garbage", "Garbage", "It's just garbage.", CraftingCategory.Resources));
+            garbage.InitRecipe(AddRecipe(new Recipe(garbage, 1, ModHelper.GetModItem("Scrap"))));
+            garbage.Init();
 
             GameObject.DontDestroyOnLoad(sphere);
         }
