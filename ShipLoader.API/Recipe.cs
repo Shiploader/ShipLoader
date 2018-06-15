@@ -22,10 +22,15 @@ namespace ShipLoader.API
     {
 
         public RaftMod owner { get; private set; } = null;
+
         public Item result { get; private set; }
         public int amount { get; private set; }
+
         public RecipeShape[] recipe { get; private set; }
         public RecipeItem recipeItem { get; private set; } = null;
+
+        public Item blueprint { get; private set; } = null;
+        public bool discoveredByDefault { get; private set; } = false;
 
         //Recipe syntax is as following;
         //scrap, plank, plastic
@@ -36,10 +41,11 @@ namespace ShipLoader.API
         //scrap, plank, plastic, 3
         //3 Scrap, Plank or Plastic (This is used with shark bait for example)
         //SharkBait: rope, 2, rawPomfret, rawHerring, 2
-        public Recipe(Item result, int amount, Item item0, params object[] param)
+        public Recipe(Item result, int amount, bool discoveredByDefault, Item item0, params object[] param)
         {
             this.result = result;
             this.amount = amount;
+            this.discoveredByDefault = discoveredByDefault;
 
             List<Item> items = new List<Item>();
             List<RecipeShape> shapes = new List<RecipeShape>();
@@ -70,28 +76,11 @@ namespace ShipLoader.API
             recipe = shapes.ToArray();
         }
 
-        //Convert existing recipe
-        public Recipe(Item it, ItemInstance_Recipe recipe, RaftMod owner)
+        //See Recipe(result, amount, ...) for explanation
+        //Same constructor, just takes a blueprint item
+        public Recipe(Item blueprint, Item result, int amount, Item item0, params object[] param): this(result, amount, false, item0, param)
         {
-
-            amount = recipe.AmountToCraft;
-            result = it;
-            //recipe.BlueprintItem;
-
-            this.recipe = new RecipeShape[recipe.NewCost.Length];
-
-            int i = 0;
-            foreach (CostMultiple cm in recipe.NewCost)
-            {
-                Item[] items = new Item[cm.items.Length];
-
-                for (int j = 0; j < cm.items.Length; ++j)
-                    items[j] = owner.GetItem(cm.items[j]);
-
-                this.recipe[i] = new RecipeShape(cm.amount, items);
-                ++i;
-            }
-
+            this.blueprint = blueprint;
         }
 
         public override string ToString()

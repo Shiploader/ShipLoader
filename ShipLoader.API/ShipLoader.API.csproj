@@ -36,7 +36,6 @@
     <Compile Include="ModHelper.cs" />
     <Compile Include="mod_Raft.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="QueueObject.cs" />
     <Compile Include="RaftMod.cs" />
     <Compile Include="Recipe.cs" />
   </ItemGroup>
@@ -51,43 +50,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\programs\steam\steamapps\common\Raft\Raft_Data\Managed\Assembly-CSharp.dll</HintPath>
     </Reference>
-    <Reference Include="Assembly-CSharp-firstpass, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\programs\steam\steamapps\common\Raft\Raft_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.Security, Version=2.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\programs\steam\steamapps\common\Raft\Raft_Data\Managed\Mono.Security.dll</HintPath>
-    </Reference>
-    <Reference Include="NestedPrefabs">
-      <HintPath>..\..\..\..\programs\steam\steamapps\common\Raft\Raft_Data\Managed\NestedPrefabs.dll</HintPath>
-    </Reference>
-    <Reference Include="Sirenix.OdinInspector.Attributes, Version=1.0.5.1, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\programs\steam\steamapps\common\Raft\Raft_Data\Managed\Sirenix.OdinInspector.Attributes.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
-    <Reference Include="TextMeshPro-2017.1-1.0.56-Runtime, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\programs\steam\steamapps\common\Raft\Raft_Data\Managed\TextMeshPro-2017.1-1.0.56-Runtime.dll</HintPath>
-    </Reference>
     <Reference Include="UnityEngine, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\programs\steam\steamapps\common\Raft\Raft_Data\Managed\UnityEngine.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.Analytics">
-      <HintPath>..\..\..\..\programs\steam\steamapps\common\Raft\Raft_Data\Managed\UnityEngine.Analytics.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.Networking, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\programs\steam\steamapps\common\Raft\Raft_Data\Managed\UnityEngine.Networking.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.Timeline">
-      <HintPath>..\..\..\..\programs\steam\steamapps\common\Raft\Raft_Data\Managed\UnityEngine.Timeline.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.UI, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\programs\steam\steamapps\common\Raft\Raft_Data\Managed\UnityEngine.UI.dll</HintPath>
     </Reference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

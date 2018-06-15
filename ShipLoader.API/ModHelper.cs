@@ -1,6 +1,7 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using Harpoon.Core;
+using System.Reflection;
+using System.Collections.Generic;
 
 namespace ShipLoader.API
 {
@@ -17,47 +18,52 @@ namespace ShipLoader.API
 
             //Initialize items
             foreach (Item_Base ib in ItemManager.GetAllItems())
-                mainMod.AddItem(ConvertItem(mainMod, ib));
+                ConvertItem(mainMod, ib).Init();
 
             //Initialize recipes
             foreach(Item_Base ib in ItemManager.GetAllItems())
             {
-                Item i = mainMod.GetItem(ib);
+                Item i = Item.ByHandle(ib);
 
                 if (ib.settings_recipe.NewCost.Length != 0)
-                {
-                    Recipe rec;
-                    typeof(Item).GetProperty("recipe").SetValue(i, rec = mainMod.AddRecipe(new Recipe(i, ib.settings_recipe, mainMod)), null);
-                }
+                    typeof(Item).GetProperty("recipe").SetValue(i, ConvertRecipe(mainMod, i, ib.settings_recipe), null);
             }
         }
 
         public static Item ConvertItem(RaftMod mod, Item_Base item)
         {
-            Item i = new Item(item.UniqueName, item.settings_Inventory.DisplayName, item.settings_Inventory.Description, item.settings_recipe.CraftingCategory, item.MaxUses, item.settings_Inventory.StackSize);
+            Item i = new Item(item.UniqueName, item.settings_Inventory.DisplayName, item.settings_Inventory.Description, (ItemCategory) item.settings_recipe.CraftingCategory, item.MaxUses, item.settings_Inventory.StackSize, item.settings_recipe.SubCategory);
             typeof(Item).GetProperty("owner").SetValue(i, mod, null);
             typeof(Item).GetProperty("id").SetValue(i, item.UniqueIndex, null);
             typeof(Item).GetProperty("baseItem").SetValue(i, item, null);
+            mod.AddItem(i);
             return i;
         }
 
-        //modObjectName;
-        //Scrap = .Scrap = Raft.Scrap (The scrap item)
-        //Test.Tin (The tin ingot from the test mod)
-        public static Item GetModItem(string item)
+        public static Recipe ConvertRecipe(RaftMod mod, Item it, ItemInstance_Recipe recipe)
         {
-            RaftMod owner = mainMod;
+            Recipe r = new Recipe(it, recipe.AmountToCraft, recipe.LearnedFromBeginning, null);
+            
+            if (recipe.BlueprintItem != null)
+                typeof(Recipe).GetProperty("blueprint").SetValue(r, Item.ByHandle(recipe.BlueprintItem), null);
 
-            if (!item.Contains('.'))
-                return owner.GetItem(item);
+            RecipeShape[] shape = new RecipeShape[recipe.NewCost.Length];
 
-            owner = GetMod(item);
-            item = item.Substring(item.IndexOf('.'));
+            int i = 0;
+            foreach (CostMultiple cm in recipe.NewCost)
+            {
+                Item[] items = new Item[cm.items.Length];
 
-            if (owner == null)
-                return mainMod.GetItem("Undefined");
+                for (int j = 0; j < cm.items.Length; ++j)
+                    items[j] = Item.ByHandle(cm.items[j]);
 
-            return owner.GetItem(item);
+                shape[i] = new RecipeShape(cm.amount, items);
+                ++i;
+            }
+
+            typeof(Recipe).GetProperty("recipe").SetValue(r, shape, null);
+
+            return mod.AddRecipe(r);
         }
 
         public static RaftMod GetMod(string modName)
@@ -71,7 +77,7 @@ namespace ShipLoader.API
 
             return (RaftMod) mod;
         }
-
+        
         private static mod_Raft mainMod = null;
     }
 }

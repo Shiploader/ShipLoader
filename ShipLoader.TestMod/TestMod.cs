@@ -21,9 +21,9 @@ namespace ShipLoader.TestMod
 		[DisplayName("Metadata")]
 		public override ModMetadata Metadata => new ModMetadata()
 		{
-			AuthorName = "Veld",
-			ModName = "Test Mod",
-			ModDescription = "This is a ShipLoader test mod!",
+			AuthorName = "Nelus",
+			ModName = "Garbage",
+			ModDescription = "It's just garbage.",
 			ModVersion = "0.1"
 		};
 
@@ -38,8 +38,8 @@ namespace ShipLoader.TestMod
 
             ModHelper.Init();
 
-            Item garbage = AddItem(new Item("Garbage", "Garbage", "It's just garbage.", CraftingCategory.Resources));
-            garbage.InitRecipe(AddRecipe(new Recipe(garbage, 1, ModHelper.GetModItem("Scrap"))));
+            Item garbage = AddItem(new Item("Garbage", "Garbage", "It's just garbage.", ItemCategory.Resources));
+            garbage.InitRecipe(AddRecipe(new Recipe(garbage, 1, true, Item.ByName("Raft.Plastic"), 6)));
             garbage.Init();
 
             GameObject.DontDestroyOnLoad(sphere);
