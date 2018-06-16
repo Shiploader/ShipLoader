@@ -24,7 +24,8 @@ namespace ShipLoader.TestMod
 			AuthorName = "Nelus",
 			ModName = "Garbage",
 			ModDescription = "It's just garbage.",
-			ModVersion = "0.1"
+			ModVersion = "0.1",
+            Priority = 1
 		};
 
 		public override void Initialize()
@@ -35,8 +36,6 @@ namespace ShipLoader.TestMod
 
             Console.WriteLine("Creating component");
             sphere.AddComponent<TestModInterface>();
-
-            ModHelper.Init();
 
             Item garbage = AddItem(new Item("Garbage", "Garbage", "It's just garbage.", ItemCategory.Resources));
             garbage.InitRecipe(AddRecipe(new Recipe(garbage, 1, true, Item.ByName("Raft.Plastic"), 6)));

@@ -37,24 +37,12 @@ namespace Harpoon.Core
 
                 string[] dirs = Directory.GetDirectories(Directory.GetCurrentDirectory() + "\\mods");
 
+                List<Mod> modsPrioritized = new List<Mod>();
+
                 //Categorize the dlls on if they have an Initializable
                 foreach (string modDir in dirs)
                 {
-
-                    //List<Assembly> deps = new List<Assembly>();
-
-                    ////Load all dependencies (reflection only)
-
-                    //string[] depsPath = Directory.GetFiles(modDir + "\\deps");
-
-                    //Console.WriteLine("Found mod(s) at " + modDir + " with dependencies:");
-
-                    //foreach (string dep in depsPath)
-                    //{
-                    //    deps.Add(Assembly.LoadFile(dep));
-                    //    Console.WriteLine(dep);
-                    //}
-
+                    
                     //Load mods themselves
 
                     string[] modsPath = Directory.GetFiles(modDir, "*.dll");
@@ -70,11 +58,30 @@ namespace Harpoon.Core
                             //Check what category this belongs into
 
                             Assembly asm = Assembly.LoadFile(mod);
+                            Type[] types = asm.GetTypes().Where(x => typeof(Mod).IsAssignableFrom(x)).ToArray();
 
-                            if (asm.GetTypes().Count(x => typeof(Mod).IsAssignableFrom(x)) > 0)
+                            if (types.Count() != 0)
                             {
                                 modAssemblies.Add(asm);
-                                Console.WriteLine("Found mod " + mod);
+                                Console.WriteLine("Found mod assembly " + mod);
+                            }
+                            
+                            foreach (Type t in types)
+                            {
+                                Mod m = (Mod)Activator.CreateInstance(t);
+
+                                if (m != null && m.Metadata.ModName == "")
+                                    continue;
+
+                                if(m == null || mods.ContainsKey(m.Metadata.ModName))
+                                {
+                                    Console.WriteLine("Couldn't load mod \"" + m.Metadata.ToString() + "\" it's already loaded or it is invalid");
+                                    continue;
+                                }
+
+                                mods[m.Metadata.ModName] = m;
+                                modsPrioritized.Add(m);
+
                             }
                         }
                         catch (ReflectionTypeLoadException e)
@@ -91,41 +98,12 @@ namespace Harpoon.Core
                     }
                 }
 
-                //Right now it just loads all mods in alphabetical order
-                //But the better way would be to sort them on dependency
-                foreach (Assembly a in modAssemblies)
+                modsPrioritized = modsPrioritized.OrderBy(o => o.Metadata.Priority).ToList();
+
+                foreach (Mod m in modsPrioritized)
                 {
-                    Type[] types = a.GetTypes()
-                        .Where(x => typeof(Mod).IsAssignableFrom(x))
-                        .ToArray();
-
-                    foreach (Type t in types)
-                    {
-                        Console.WriteLine("Loading mod '" + t.ToString() + "'...");
-
-						Mod m = (Mod)Activator.CreateInstance(t);
-                        if (m != null)
-                        {
-                            if (mods.ContainsKey(m.Metadata.ModName))
-                            {
-                                Console.WriteLine("Overlapping mods:");
-                                Console.WriteLine(mods[m.Metadata.ModName].ToString());
-                                Console.WriteLine(m.Metadata.ToString());
-                                Console.WriteLine("Keeping first version...");
-                                continue;
-                            }
-
-                            try
-                            {
-                                m.Initialize();
-                                mods[m.Metadata.ModName] = m;
-                            }
-                            catch (Exception e)
-                            {
-                                Console.WriteLine("ERROR: mod of type " + m.ToString() + " failed loading!\nCALL STACK:\n" + e.ToString());
-                            }
-                        }
-                    }
+                    Console.WriteLine("Intializing \"" + m.Metadata.ToString() + "\"");
+                    m.Initialize();
                 }
             }
             catch (Exception e)

@@ -8,6 +8,11 @@ namespace ShipLoader.API
     public class RaftMod : Mod
     {
 
+        public RaftMod()
+        {
+            mods[Metadata.ModName] = this;
+        }
+
         //Get an item; returns null if it doesn't exist
         public Item GetItem(string name)
         {
@@ -19,7 +24,7 @@ namespace ShipLoader.API
         }
 
         //Adds item if it doesn't already exist in the mod
-        public Item AddItem(Item i)
+        protected Item AddItem(Item i)
         {
             string name = i.name;
 
@@ -44,7 +49,7 @@ namespace ShipLoader.API
         }
 
         //Adds recipe if it doesn't already exist in the mod
-        public Recipe AddRecipe(Recipe r)
+        protected Recipe AddRecipe(Recipe r)
         {
 
             if (recipes.Contains(r))
@@ -57,10 +62,19 @@ namespace ShipLoader.API
             Console.WriteLine(r.ToString());
             return r;
         }
-        
+
+        public static RaftMod Get(string id)
+        {
+            if (!mods.ContainsKey(id))
+                return null;
+
+            return mods[id];
+        }
+
+        private static Dictionary<string, RaftMod> mods = new Dictionary<string, RaftMod>();
+        private static int itemOffset = 399;
+
         private Dictionary<string, Item> items = new Dictionary<string, Item>();
         private List<Recipe> recipes = new List<Recipe>();
-
-        private static int itemOffset = 399;
     }
 }

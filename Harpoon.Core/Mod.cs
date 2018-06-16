@@ -23,6 +23,9 @@ namespace Harpoon.Core
 		[DisplayName("Author")]
 		public string AuthorName { get; set; }
 
+        [DisplayName("Priority")]
+        public int Priority { get; set; }
+
         public override string ToString()
         {
             return ModName + " version " + ModVersion + " by " + AuthorName + " (" + ModDescription + ")";
@@ -35,7 +38,7 @@ namespace Harpoon.Core
 			new ModMetadata {
 				AuthorName = "Your Name",
 				ModDescription = "A new beginning to a wonderful mod!",
-				ModName = "New Mod",
+				ModName = "",
 				ModVersion = "0.0.0"
 			};
 
