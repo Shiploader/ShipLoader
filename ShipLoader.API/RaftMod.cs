@@ -145,46 +145,47 @@ namespace ShipLoader.API
             return count != 0;
         }
 
-        //Add a 'transformer'; something that transforms items into other items
-        //Examples are; smelters, grills, purifiers and paint mills.
-        protected void AddConverter(string type, Item[] interfaces)
+		//Add a 'transformer'; something that transforms items into other items
+		//Examples are; smelters, grills, purifiers and paint mills.
+		protected void AddConverter(string type, params Item[] interfaces)
+		{
+			if (!converter.ContainsKey(type))
+			{
+				converter.Add(type, new List<Item>(interfaces));
+			}
+
+			else
+			{
+				converter[type].InsertRange(converter[type].Count, interfaces);
+			}
+		}
+
+        public static IEnumerable<Item> GetConverters(string type)
         {
-            if (!converter.ContainsKey(type))
-                converter.Add(type, new List<Item>(interfaces));
-            else
-                converter[type].InsertRange(converter[type].Count, interfaces);
+			if (!converter.ContainsKey(type))
+				return null;
+
+			return converter[type];
         }
 
-        public static Item[] GetConverters(string type)
+        public static IEnumerable<string> GetConverterTypes()
         {
-            if (!converter.ContainsKey(type))
-                return new Item[] { };
-
-            return converter[type].ToArray();
+            return converter.Keys;
         }
 
-        public static string[] GetConverterTypes()
+        public IEnumerable<Item> GetItems()
         {
-            string[] names = new string[converter.Count];
-            converter.Keys.CopyTo(names, 0);
-            return names;
+            return items.Values;
         }
 
-        public Item[] GetItems()
+        public IEnumerable<Recipe> GetRecipes()
         {
-            Item[] items = new Item[this.items.Count];
-            this.items.Values.CopyTo(items, 0);
-            return items;
+            return recipes;
         }
 
-        public Recipe[] GetRecipes()
+        public IEnumerable<ConvertRecipe> GetConversions()
         {
-            return recipes.ToArray();
-        }
-
-        public ConvertRecipe[] GetConversions()
-        {
-            return convertRecipes.ToArray();
+            return convertRecipes;
         }
 
         public static RaftMod Get(string id)
