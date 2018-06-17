@@ -16,25 +16,25 @@ bool addFuncToInit(bool (*f)(), const char *str) {
 	return true;
 }
 
-#define MONO_FUNC_T(x, params, y, z) 												\
+HMODULE mono;
+
+#define MONO_FUNC_T(x, params, y) 												\
 x (*y)(params) = nullptr;															\
-bool y##_func(){ y = (x (*)(params)) GetProcAddress(z, #y); return y != nullptr; }	\
+bool y##_func(){ y = (x (*)(params)) GetProcAddress(mono, #y); return y != nullptr; }	\
 const bool y##_funcInitb = addFuncToInit(y##_func, #y);
 
-#define MONO_FUNC(params, y, z) MONO_FUNC_T(PVOID, params, y, z);
+#define MONO_FUNC(params, y) MONO_FUNC_T(PVOID, params, y);
 
 #define _(...) __VA_ARGS__
 
-HMODULE mono;
-
-MONO_FUNC(_(), mono_domain_get, mono);
-MONO_FUNC(_(PVOID), mono_thread_attach, mono);
-MONO_FUNC(_(), mono_get_root_domain, mono);
-MONO_FUNC(_(PVOID, PCHAR), mono_domain_assembly_open, mono);
-MONO_FUNC(_(PVOID, PCHAR, PCHAR), mono_class_from_name, mono);
-MONO_FUNC(_(PVOID, PCHAR, DWORD), mono_class_get_method_from_name, mono);
-MONO_FUNC(_(PVOID, PVOID, PVOID*, PVOID), mono_runtime_invoke, mono);
-MONO_FUNC(_(PVOID), mono_assembly_get_image, mono);
+MONO_FUNC(_(), mono_domain_get);
+MONO_FUNC(_(PVOID), mono_thread_attach);
+MONO_FUNC(_(), mono_get_root_domain);
+MONO_FUNC(_(PVOID, PCHAR), mono_domain_assembly_open);
+MONO_FUNC(_(PVOID, PCHAR, PCHAR), mono_class_from_name);
+MONO_FUNC(_(PVOID, PCHAR, DWORD), mono_class_get_method_from_name);
+MONO_FUNC(_(PVOID, PVOID, PVOID*, PVOID), mono_runtime_invoke);
+MONO_FUNC(_(PVOID), mono_assembly_get_image);
 
 BOOL WINAPI DllMain(HINSTANCE, DWORD fdwReason, LPVOID)  {
 

@@ -30,6 +30,18 @@ namespace ShipLoader.API
         CreativeMode = 8
     }
 
+    public enum ItemUse
+    {
+        None,                   //Can't be used in inventory
+        Inventory,              //Just generic, it's meant for inventory use
+        Buildable,
+        Equipable,
+        Drinkable,              //An empty bottle is seen as 'drinkable' but FoodType is None
+        Recipe,
+        Tool
+    }
+
+
     public class Item
     {
 
@@ -42,14 +54,24 @@ namespace ShipLoader.API
         public string description { get; private set; }
         public Item_Base baseItem { get; private set; } = null;
         public ItemCategory category { get; private set; }
+        public ItemUse use { get; private set; }
         public string subcategory { get; private set; }
 
+        public string fullName
+        {
+            get
+            {
+                return owner.Metadata.ModName + "." + name;
+            }
+        }
+
         public Recipe recipe { get; private set; } = null;
+        public ConvertRecipe convertRecipe { get; private set; } = null;
 
         private static Dictionary<Item_Base, Item> items = new Dictionary<Item_Base, Item>();
         private static Dictionary<string, Item> itemsByName = new Dictionary<string, Item>();
 
-        public Item(string name, string displayName, string description, ItemCategory category, int durability = 1, int stackSize = 20, string subcategory = "")
+        public Item(string name, string displayName, string description, ItemCategory category, ItemUse use, int durability = 1, int stackSize = 20, string subcategory = "")
         {
             this.name = name;
             this.displayName = displayName;
@@ -57,6 +79,7 @@ namespace ShipLoader.API
             this.stackSize = stackSize;
             this.description = description;
             this.category = category;
+            this.use = use;
             this.subcategory = subcategory;
         }
 
@@ -76,16 +99,30 @@ namespace ShipLoader.API
                 //Item itself
 
                 item = baseItem = ScriptableObject.CreateInstance<Item_Base>();
-                item.Initialize(id, name, ItemType.Inventory, durability);
-                item.name = displayName;
+                item.Initialize(id, fullName, (ItemType) use, durability);
+                item.name = fullName;
 
                 //Inventory
 
-                item.settings_Inventory = new ItemInstance_Inventory(null, "Item/" + item.UniqueName, stackSize);
+                item.settings_Inventory = new ItemInstance_Inventory(null, "Item/" + fullName, stackSize);
                 item.settings_Inventory.Description = description;
                 item.settings_Inventory.DisplayName = displayName;
 
-                //Recipe (TODO: maybe split this up? like with SetRecipe or something?)
+                //Stuff required to make items work; as they are used by ItemInstance constructor
+
+                item.settings_buildable = new ItemInstance_Buildable(null, false, false);
+                item.settings_consumeable = new ItemInstance_Consumeable(0, 0, false, null, FoodType.None);
+                item.settings_equipment = new ItemInstance_Equipment(EquipSlotType.None);
+                item.settings_usable = new ItemInstance_Usable("", 0, 0, false, false, PlayerAnimation.None, PlayerAnimation.None, false, false, false, "");
+
+                //'Cooking' Recipe (conversion recipe)
+
+                if(convertRecipe != null)
+                    item.settings_cookable = new ItemInstance_Cookable(convertRecipe.slots, convertRecipe.time, new Cost(convertRecipe.output.baseItem, convertRecipe.amount));
+                else
+                    item.settings_cookable = new ItemInstance_Cookable(0, 0, null);
+
+                //Crafting recipe
 
                 item.settings_recipe = new ItemInstance_Recipe((CraftingCategory)category, false, recipe == null ? false : recipe.discoveredByDefault, subcategory, 0);
 
@@ -135,7 +172,7 @@ namespace ShipLoader.API
                 return true;
 
             Item.items[item] = this;
-            Item.itemsByName[owner.Metadata.ModName + "." + name] = this;
+            itemsByName[fullName] = this;
             return true;
         }
 
@@ -146,13 +183,19 @@ namespace ShipLoader.API
 
         public override string ToString()
         {
-            return owner.Metadata.ModName + "." + name + " #" + id + " (" + displayName + "): \"" + description + "\", stackSize=" + stackSize + ", durability=" + durability + ", category=" + category.ToString();
+            return fullName + " #" + id + " (" + displayName + "): \"" + description + "\", stackSize=" + stackSize + ", durability=" + durability + ", category=" + category.ToString() + ", use=" + use.ToString();
         }
 
         public void InitRecipe(Recipe recipe)
         {
-            if (this.recipe == null)
+            if (baseItem == null)
                 this.recipe = recipe;
+        }
+
+        public void InitConvertRecipe(ConvertRecipe recipe)
+        {
+            if (baseItem == null)
+                convertRecipe = recipe;
         }
 
         public static Item ByHandle(Item_Base item)

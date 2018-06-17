@@ -85,7 +85,7 @@ namespace ShipLoader.API
 
         public override string ToString()
         {
-            string res = owner.Metadata.ModName + ": " + result.owner.Metadata.ModName + "." + result.name + " x" + amount + ", shape=[";
+            string res = owner.Metadata.ModName + ": " + result.fullName + " x" + amount + ", shape=[";
 
             bool first0 = true;
 
@@ -97,7 +97,7 @@ namespace ShipLoader.API
                 bool first1 = true;
 
                 foreach (Item i in shape.items)
-                    res += (first1 ? (!(first1 = false) ? "" : "") : ", ") + i.owner.Metadata.ModName + "." + i.name;
+                    res += (first1 ? (!(first1 = false) ? "" : "") : ", ") + i.fullName;
 
                 res += ")";
             }
