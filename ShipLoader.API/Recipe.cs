@@ -4,20 +4,27 @@ using UnityEngine;
 namespace ShipLoader.API
 {
 
+    /// <summary>
+    /// A RecipeShape is a combination of items that can be used 'amount' of times in a recipe.
+    /// Normally, this is just 1 item, but shark bait is an example where you can use either a herring or a pomfret (you need 2 of either or 1 of either)
+    /// </summary>
     public class RecipeShape
     {
 
         public Item[] items { get; private set; }
-        public int number { get; private set; }
+        public int amount { get; private set; }
 
-        public RecipeShape(int number, params Item[] items)
+        public RecipeShape(int amount, params Item[] items)
         {
-            this.number = number;
+            this.amount = amount;
             this.items = items;
         }
 
     }
 
+    /// <summary>
+    /// A recipe is the representation of a crafting recipe in the game
+    /// </summary>
     public class Recipe
     {
 
@@ -32,15 +39,17 @@ namespace ShipLoader.API
         public Item blueprint { get; private set; } = null;
         public bool discoveredByDefault { get; private set; } = false;
 
-        //Recipe syntax is as following;
-        //scrap, plank, plastic
-        //scrap, scrap, scrap, plank, plank, plank, plastic, plastic, plastic
-        //Item names and amount per item (On the right)
-        //scrap, 3, plank, 3, plastic, 3
-        //Allowing multiple items as an input
-        //scrap, plank, plastic, 3
-        //3 Scrap, Plank or Plastic (This is used with shark bait for example)
-        //SharkBait: rope, 2, rawPomfret, rawHerring, 2
+        /// <summary>
+        /// Insert a number to the right of the item(s) you need for a RecipeShape.
+        /// Example:<para />
+        /// new Recipe(garbage, 1, true, plastic, 6)<para />
+        /// new Recipe(garbage, 1, true, plastic, 6, scrap, 8)<para />
+        /// new Recipe(garbage, 1, true, plastic, scrap, 6)<para />
+        /// The first line requires 6 plastic, the second 6 plastic and 8 scrap and the third requires 6 scrap or plastic (either is fine).
+        /// </summary>
+        /// <param name="result">The result of the recipe</param>
+        /// <param name="amount">The amount the recipe returns</param>
+        /// <param name="discoveredByDefault">Whether or not the recipe is discovered by default</param>
         public Recipe(Item result, int amount, bool discoveredByDefault, Item item0, params object[] param)
         {
             this.result = result;
@@ -76,8 +85,18 @@ namespace ShipLoader.API
             recipe = shapes.ToArray();
         }
 
-        //See Recipe(result, amount, ...) for explanation
-        //Same constructor, just takes a blueprint item
+        /// <summary>
+        /// Insert a number to the right of the item(s) you need for a RecipeShape.
+        /// Example:<para />
+        /// new Recipe(garbage, 1, true, plastic, 6)<para />
+        /// new Recipe(garbage, 1, true, plastic, 6, scrap, 8)<para />
+        /// new Recipe(garbage, 1, true, plastic, scrap, 6)<para />
+        /// The first line requires 6 plastic, the second 6 plastic and 8 scrap and the third requires 6 scrap or plastic (either is fine).
+        /// </summary>
+        /// <param name="blueprint">The blueprint that unlocks this recipe</param>
+        /// <param name="result">The result of the recipe</param>
+        /// <param name="amount">The amount the recipe returns</param>
+        /// <param name="discoveredByDefault">Whether or not the recipe is discovered by default</param>
         public Recipe(Item blueprint, Item result, int amount, Item item0, params object[] param): this(result, amount, false, item0, param)
         {
             this.blueprint = blueprint;
@@ -92,7 +111,7 @@ namespace ShipLoader.API
             foreach (RecipeShape shape in recipe)
             {
 
-                res += (first0 ? (!(first0 = false) ? "" : "") : ", ") + "(x" + shape.number + ", ";
+                res += (first0 ? (!(first0 = false) ? "" : "") : ", ") + "(x" + shape.amount + ", ";
 
                 bool first1 = true;
 
