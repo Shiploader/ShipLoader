@@ -186,18 +186,6 @@ namespace ShipLoader.API
             return fullName + " #" + id + " (" + displayName + "): \"" + description + "\", stackSize=" + stackSize + ", durability=" + durability + ", category=" + category.ToString() + ", use=" + use.ToString();
         }
 
-        public void InitRecipe(Recipe recipe)
-        {
-            if (baseItem == null)
-                this.recipe = recipe;
-        }
-
-        public void InitConvertRecipe(ConvertRecipe recipe)
-        {
-            if (baseItem == null)
-                convertRecipe = recipe;
-        }
-
         public static Item ByHandle(Item_Base item)
         {
             if (!items.ContainsKey(item))

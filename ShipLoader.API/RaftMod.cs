@@ -12,7 +12,12 @@ namespace ShipLoader.API
 
         public RaftMod()
         {
-            mods[Metadata.ModName] = this;
+            if (!mods.ContainsKey(Metadata.ModName))
+            {
+                mods[Metadata.ModName] = this;
+            }
+            else
+                Console.WriteLine("ERROR: Same mod name detected twice; Please fix this!");
         }
 
         //Get an item; returns null if it doesn't exist
@@ -66,7 +71,7 @@ namespace ShipLoader.API
         }
 
         //Adds 'use' recipe if it doesn't already exist
-        protected ConvertRecipe AddUseRecipe(ConvertRecipe r)
+        protected ConvertRecipe AddRecipe(ConvertRecipe r)
         {
             if (convertRecipes.Contains(r))
                 return r;

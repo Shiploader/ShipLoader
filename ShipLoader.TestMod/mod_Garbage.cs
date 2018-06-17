@@ -44,9 +44,8 @@ namespace ShipLoader.TestMod
             Item plastic = Item.ByName("Raft.Plastic");
 
             Item garbage = AddItem(new Item("Garbage", "Garbage", "It's just garbage.", ItemCategory.Resources, ItemUse.None));
-            garbage.InitRecipe(AddRecipe(new Recipe(garbage, 1, true, plastic, 6)));
-            garbage.InitConvertRecipe(AddUseRecipe(new ConvertRecipe(garbage, plastic, 5, 2.5f, ConvertType.smelter)));
-            garbage.Init();
+            AddRecipe(new Recipe(garbage, 1, true, plastic, 6));
+            AddRecipe(new ConvertRecipe(garbage, plastic, 5, 2.5f, ConvertType.smelter));
 
             GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Cube);
             sphere.transform.position = Camera.main.transform.position + Camera.main.transform.forward * 3 + Camera.main.transform.right * 0.5f;

@@ -3,6 +3,7 @@ using Harpoon.Core;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
+using System;
 
 namespace ShipLoader.API
 {
@@ -13,14 +14,47 @@ namespace ShipLoader.API
         void Start()
         {
 
-            //Register conversion recipes
-
-            MethodInfo regRec = typeof(RaftMod).GetMethod("RegisterRecipe", BindingFlags.NonPublic | BindingFlags.Instance);
+            MethodInfo regRecf = typeof(RaftMod).GetMethod("RegisterRecipe", BindingFlags.NonPublic | BindingFlags.Instance);
+            PropertyInfo recipep = typeof(Item).GetProperty("recipe");
+            PropertyInfo convertRecipep = typeof(Item).GetProperty("convertRecipe");
 
             foreach (RaftMod mod in RaftMod.Get())
                 if (mod.Metadata.ModName != "Raft")
+                {
+
+                    //Register all recipes into items
+                    //Which is how it works... for now
+                    foreach (Recipe recipe in mod.GetRecipes())
+                    {
+                        Item i = recipe.result;
+
+                        if (recipep.GetValue(i, null) != null)
+                            Console.WriteLine("Couldn't register recipe; \"" + recipe.ToString() + "\", it was already occupied. This is a Raft Game Architecture problem.");
+                        else
+                            recipep.SetValue(i, recipe, null);
+                    }
+
+                    //Register all convert recipes into items
+                    //Which is how it works... for now
+                    foreach(ConvertRecipe recipe in mod.GetConversions())
+                    {
+
+                        Item i = recipe.input;
+
+                        if (convertRecipep.GetValue(i, null) != null)
+                            Console.WriteLine("Couldn't register convert recipe; \"" + recipe.ToString() + "\", it was already occupied. This is a Raft Game Architecture problem.");
+                        else
+                            convertRecipep.SetValue(i, recipe, null);
+                        
+                    }
+
+                    foreach (Item i in mod.GetItems())
+                        i.Init();
+
+                    //Register recipes
                     foreach (ConvertRecipe recipe in mod.GetConversions())
-                        regRec.Invoke(mod, new object[] { recipe });
+                        regRecf.Invoke(mod, new object[] { recipe });
+                }
         }
 
     }
@@ -64,7 +98,7 @@ namespace ShipLoader.API
             }
 
             //For pre-initialization tasks;
-            //Such as registering recipes and conversion recipes
+            //Such as registering recipes, conversion recipes and items
 
             GameObject modHelper = GameObject.Instantiate(new GameObject());
             modHelper.AddComponent<ModHelper>();
@@ -111,8 +145,8 @@ namespace ShipLoader.API
         {
             string type = "";
 
-            foreach (string t in RaftMod.GetConverterTypes())
-                foreach (Item i in RaftMod.GetConverters(t))
+            foreach (string t in GetConverterTypes())
+                foreach (Item i in GetConverters(t))
                 {
 
                     Block block;
@@ -162,7 +196,7 @@ namespace ShipLoader.API
 
             ConvertRecipe r = new ConvertRecipe(it, Item.ByHandle(recipe.CookingResult.item), recipe.CookingResult.amount, recipe.CookingTime, type, recipe.CookingSlotsRequired);
             typeof(ConvertRecipe).GetProperty("owner").SetValue(r, this, null);
-            return AddUseRecipe(r);
+            return AddRecipe(r);
         }
     }
 }
