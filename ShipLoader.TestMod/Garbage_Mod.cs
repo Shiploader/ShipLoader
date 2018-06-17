@@ -26,7 +26,7 @@ namespace ShipLoader.TestMod
 
     }
 
-    public class mod_Garbage : RaftMod
+    public class Garbage_Mod : RaftMod
 	{
 		[DisplayName("Metadata")]
 		public override ModMetadata Metadata => new ModMetadata()
@@ -45,7 +45,7 @@ namespace ShipLoader.TestMod
 
             Item garbage = AddItem(new Item("Garbage", "Garbage", "It's just garbage.", ItemCategory.Resources, ItemUse.None));
             AddRecipe(new Recipe(garbage, 1, true, plastic, 6));
-            AddRecipe(new ConvertRecipe(garbage, plastic, 5, 2.5f, ConvertType.smelter));
+            AddRecipe(new ConvertRecipe(garbage, 1, plastic, 5, ConvertType.smelter, 2.5f));
 
             GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Cube);
             sphere.transform.position = Camera.main.transform.position + Camera.main.transform.forward * 3 + Camera.main.transform.right * 0.5f;

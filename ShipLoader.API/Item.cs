@@ -5,6 +5,10 @@ using UnityEngine;
 
 namespace ShipLoader.API
 {
+
+    /// <summary>
+    /// A property of an Item that can be edited by mods
+    /// </summary>
     public enum ItemField
     {
         DisplayName,
@@ -13,10 +17,12 @@ namespace ShipLoader.API
         StackSize,
         Category,
         Sprite,
-        Recipe,
         Subcategory
     }
 
+    /// <summary>
+    /// A category for items; this also tells where to put them into the crafting menu
+    /// </summary>
     public enum ItemCategory
     {
         Tools = 0,
@@ -30,17 +36,53 @@ namespace ShipLoader.API
         CreativeMode = 8
     }
 
+    /// <summary>
+    /// What an item is used for
+    /// </summary>
     public enum ItemUse
     {
-        None,                   //Can't be used in inventory
-        Inventory,              //Just generic, it's meant for inventory use
+        /// <summary>
+        /// Can't be used in inventory
+        /// </summary>
+        None,
+
+        /// <summary>
+        /// Generic inventory item
+        /// </summary>
+        Inventory,
+
+        /// <summary>
+        /// There's a block attached that should be placed
+        /// </summary>
         Buildable,
+
+        /// <summary>
+        /// It can be worn into your equipment slots
+        /// </summary>
         Equipable,
-        Drinkable,              //An empty bottle is seen as 'drinkable' but FoodType is None
+
+        /// <summary>
+        /// This determines how a purifier looks at it; if it isn't food but it is 'drinkable' then it will be 'cooked' into the recipe item.
+        /// Please only use this for water or things affected by the water in a purifier
+        /// </summary>
+        Drinkable,
+
+        /// <summary>
+        /// This isn't used in the game, since blueprint items are Inventory items
+        /// </summary>
         Recipe,
+
+        /// <summary>
+        /// A tool; something that can be used and damaged.
+        /// Something that can be damaged isn't necessarily a tool
+        /// </summary>
         Tool
     }
 
+    /// <summary>
+    /// A wrapper around Raft's Item_Base, just to make it more mod-friendly
+    /// and to support features we would like to add.
+    /// </summary>
     public class Item
     {
         public RaftMod owner { get; private set; } = null;
@@ -68,7 +110,15 @@ namespace ShipLoader.API
 
         private static Dictionary<Item_Base, Item> items = new Dictionary<Item_Base, Item>();
         private static Dictionary<string, Item> itemsByName = new Dictionary<string, Item>();
-
+        
+        /// <param name="name">Name you access the item by</param>
+        /// <param name="displayName">Name you see ingame</param>
+        /// <param name="description">Description you see ingame</param>
+        /// <param name="category">The category this item belongs into (for example; crafting menu)</param>
+        /// <param name="use">The use of the item</param>
+        /// <param name="durability">The max uses, aka durability of an item</param>
+        /// <param name="stackSize">The max stack size</param>
+        /// <param name="subcategory">The subcategory for this item; for example, fishing</param>
         public Item(string name, string displayName, string description, ItemCategory category, ItemUse use, int durability = 1, int stackSize = 20, string subcategory = "")
         {
             this.name = name;
@@ -81,7 +131,11 @@ namespace ShipLoader.API
             this.subcategory = subcategory;
         }
 
-        public bool Init()
+        /// <summary>
+        /// Convert this item to an Item_Base
+        /// </summary>
+        /// <returns>bool success</returns>
+        protected bool Init()
         {
             if (id == 0 || owner == null)
             {
@@ -109,14 +163,14 @@ namespace ShipLoader.API
                 //Stuff required to make items work; as they are used by ItemInstance constructor
 
                 item.settings_buildable = new ItemInstance_Buildable(null, false, false);
-                item.settings_consumeable = new ItemInstance_Consumeable(0, 0, false, null, FoodType.None);
+                item.settings_consumeable = new ItemInstance_Consumeable(0, 0, false, new Cost(null, 0), FoodType.None);
                 item.settings_equipment = new ItemInstance_Equipment(EquipSlotType.None);
                 item.settings_usable = new ItemInstance_Usable("", 0, 0, false, false, PlayerAnimation.None, PlayerAnimation.None, false, false, false, "");
 
                 //'Cooking' Recipe (conversion recipe)
 
                 if(convertRecipe != null)
-                    item.settings_cookable = new ItemInstance_Cookable(convertRecipe.slots, convertRecipe.time, new Cost(convertRecipe.output.baseItem, convertRecipe.amount));
+                    item.settings_cookable = new ItemInstance_Cookable(convertRecipe.slots, convertRecipe.time, new Cost(convertRecipe.output.baseItem, convertRecipe.outputAmount));
                 else
                     item.settings_cookable = new ItemInstance_Cookable(0, 0, null);
 
@@ -144,7 +198,7 @@ namespace ShipLoader.API
                         foreach (Item i in shape.items)
                             itemBase[j++] = i.baseItem;
 
-                        costs.Add(new CostMultiple(itemBase, shape.number));
+                        costs.Add(new CostMultiple(itemBase, shape.amount));
                     }
 
                     item.settings_recipe.NewCost = costs.ToArray();
@@ -174,16 +228,16 @@ namespace ShipLoader.API
             return true;
         }
 
-        //public void ApplyPatch(ItemField field, object o)
-        //{
-
-        //}
-
         public override string ToString()
         {
             return fullName + " #" + id + " (" + displayName + "): \"" + description + "\", stackSize=" + stackSize + ", durability=" + durability + ", category=" + category.ToString() + ", use=" + use.ToString();
         }
 
+        /// <summary>
+        /// Get an item by its handle
+        /// </summary>
+        /// <param name="item">Handle; the legacy item</param>
+        /// <returns>item</returns>
         public static Item ByHandle(Item_Base item)
         {
             if (!items.ContainsKey(item))
@@ -192,6 +246,11 @@ namespace ShipLoader.API
             return items[item];
         }
 
+        /// <summary>
+        /// Get an item by its (fully qualified) name
+        /// </summary>
+        /// <param name="name">The fully qualified name (Mod.Item)</param>
+        /// <returns>item</returns>
         public static Item ByName(string name)
         {
             if (!itemsByName.ContainsKey(name))

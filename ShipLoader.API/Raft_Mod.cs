@@ -7,6 +7,9 @@ using System;
 
 namespace ShipLoader.API
 {
+	/// <summary>
+	/// A class for handling all mod behaviour that occurs run-time or pre-init
+	/// </summary>
 	public class ModHelper : MonoBehaviour
 	{
 		void Start()
@@ -14,12 +17,12 @@ namespace ShipLoader.API
 			MethodInfo regRecf = typeof(RaftMod).GetMethod("RegisterRecipe", BindingFlags.NonPublic | BindingFlags.Instance);
 			PropertyInfo recipep = typeof(Item).GetProperty("recipe");
 			PropertyInfo convertRecipep = typeof(Item).GetProperty("convertRecipe");
+			MethodInfo initf = typeof(Item).GetMethod("Init", BindingFlags.NonPublic | BindingFlags.Instance);
 
 			foreach (RaftMod mod in RaftMod.Get())
 			{
 				if (mod.Metadata.ModName != "Raft")
 				{
-
 					//Register all recipes into items
 					//Which is how it works... for now
 					foreach (Recipe recipe in mod.GetRecipes())
@@ -47,7 +50,7 @@ namespace ShipLoader.API
 					}
 
 					foreach (Item i in mod.GetItems())
-						i.Init();
+						initf.Invoke(i, null);
 
 					//Register recipes
 					foreach (ConvertRecipe recipe in mod.GetConversions())
@@ -57,7 +60,10 @@ namespace ShipLoader.API
 		}
 	}
 
-    public class mod_Raft : RaftMod
+    /// <summary>
+    /// A mod that both encapsulates Raft's items as well as providing the ModHelper to simplify item creation.
+    /// </summary>
+    public class Raft_Mod : RaftMod
     {
         [DisplayName("Metadata")]
         public override ModMetadata Metadata => new ModMetadata()
@@ -73,8 +79,10 @@ namespace ShipLoader.API
         {
             //Initialize items
 
+            MethodInfo initf = typeof(Item).GetMethod("Init", BindingFlags.NonPublic | BindingFlags.Instance);
+            
             foreach (Item_Base ib in ItemManager.GetAllItems())
-                ConvertItem(ib).Init();
+                initf.Invoke(ConvertItem(ib), null);
 
             //Get all conversion blocks so they can be scanned for recipes later
 
@@ -107,6 +115,11 @@ namespace ShipLoader.API
             GameObject.DontDestroyOnLoad(modHelper);
         }
 
+        /// <summary>
+        /// Convert an item from legacy to mod, as well as registering it
+        /// </summary>
+        /// <param name="item">The legacy item to convert</param>
+        /// <returns>mod item</returns>
         private Item ConvertItem(Item_Base item)
         {
             Item i = new Item(item.UniqueName, item.settings_Inventory.DisplayName, item.settings_Inventory.Description, (ItemCategory)item.settings_recipe.CraftingCategory, (ItemUse) item.GetType(), item.MaxUses, item.settings_Inventory.StackSize, item.settings_recipe.SubCategory);
@@ -117,6 +130,12 @@ namespace ShipLoader.API
             return i;
         }
 
+        /// <summary>
+        /// Convert a recipe from legacy to mod, as well as registering it
+        /// </summary>
+        /// <param name="it">The item this recipe is for</param>
+        /// <param name="recipe">The legacy way of declaring a recipe</param>
+        /// <returns>mod recipe</returns>
         private Recipe ConvertRecipe(Item it, ItemInstance_Recipe recipe)
         {
             Recipe r = new Recipe(it, recipe.AmountToCraft, recipe.LearnedFromBeginning, null);
@@ -143,6 +162,13 @@ namespace ShipLoader.API
             return AddRecipe(r);
         }
 
+        /// <summary>
+        /// Converting a conversion recipe from legacy to mod, as well as registering it.
+        /// This requires lookup into 'CookingStand', which means that this should be used sparingly
+        /// </summary>
+        /// <param name="it">The item this recipe belongs to</param>
+        /// <param name="recipe">The legacy way of declaring a recipe</param>
+        /// <returns>mod recipe</returns>
         private ConvertRecipe ConvertRecipe(Item it, ItemInstance_Cookable recipe)
         {
             string type = "";
@@ -198,7 +224,7 @@ namespace ShipLoader.API
 
             if (type == "") return null;
 
-            ConvertRecipe r = new ConvertRecipe(it, Item.ByHandle(recipe.CookingResult.item), recipe.CookingResult.amount, recipe.CookingTime, type, recipe.CookingSlotsRequired);
+            ConvertRecipe r = new ConvertRecipe(it, 1, Item.ByHandle(recipe.CookingResult.item), recipe.CookingResult.amount, type, recipe.CookingTime, recipe.CookingSlotsRequired);
             typeof(ConvertRecipe).GetProperty("owner").SetValue(r, this, null);
             return AddRecipe(r);
         }
