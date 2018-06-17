@@ -7,57 +7,55 @@ using System;
 
 namespace ShipLoader.API
 {
+	public class ModHelper : MonoBehaviour
+	{
+		void Start()
+		{
+			MethodInfo regRecf = typeof(RaftMod).GetMethod("RegisterRecipe", BindingFlags.NonPublic | BindingFlags.Instance);
+			PropertyInfo recipep = typeof(Item).GetProperty("recipe");
+			PropertyInfo convertRecipep = typeof(Item).GetProperty("convertRecipe");
 
-    public class ModHelper : MonoBehaviour
-    {
+			foreach (RaftMod mod in RaftMod.Get())
+			{
+				if (mod.Metadata.ModName != "Raft")
+				{
 
-        void Start()
-        {
+					//Register all recipes into items
+					//Which is how it works... for now
+					foreach (Recipe recipe in mod.GetRecipes())
+					{
+						Item i = recipe.result;
 
-            MethodInfo regRecf = typeof(RaftMod).GetMethod("RegisterRecipe", BindingFlags.NonPublic | BindingFlags.Instance);
-            PropertyInfo recipep = typeof(Item).GetProperty("recipe");
-            PropertyInfo convertRecipep = typeof(Item).GetProperty("convertRecipe");
+						if (recipep.GetValue(i, null) != null)
+							Console.WriteLine("Couldn't register recipe; \"" + recipe.ToString() + "\", it was already occupied. This is a Raft Game Architecture problem.");
+						else
+							recipep.SetValue(i, recipe, null);
+					}
 
-            foreach (RaftMod mod in RaftMod.Get())
-                if (mod.Metadata.ModName != "Raft")
-                {
+					//Register all convert recipes into items
+					//Which is how it works... for now
+					foreach (ConvertRecipe recipe in mod.GetConversions())
+					{
 
-                    //Register all recipes into items
-                    //Which is how it works... for now
-                    foreach (Recipe recipe in mod.GetRecipes())
-                    {
-                        Item i = recipe.result;
+						Item i = recipe.input;
 
-                        if (recipep.GetValue(i, null) != null)
-                            Console.WriteLine("Couldn't register recipe; \"" + recipe.ToString() + "\", it was already occupied. This is a Raft Game Architecture problem.");
-                        else
-                            recipep.SetValue(i, recipe, null);
-                    }
+						if (convertRecipep.GetValue(i, null) != null)
+							Console.WriteLine("Couldn't register convert recipe; \"" + recipe.ToString() + "\", it was already occupied. This is a Raft Game Architecture problem.");
+						else
+							convertRecipep.SetValue(i, recipe, null);
 
-                    //Register all convert recipes into items
-                    //Which is how it works... for now
-                    foreach(ConvertRecipe recipe in mod.GetConversions())
-                    {
+					}
 
-                        Item i = recipe.input;
+					foreach (Item i in mod.GetItems())
+						i.Init();
 
-                        if (convertRecipep.GetValue(i, null) != null)
-                            Console.WriteLine("Couldn't register convert recipe; \"" + recipe.ToString() + "\", it was already occupied. This is a Raft Game Architecture problem.");
-                        else
-                            convertRecipep.SetValue(i, recipe, null);
-                        
-                    }
-
-                    foreach (Item i in mod.GetItems())
-                        i.Init();
-
-                    //Register recipes
-                    foreach (ConvertRecipe recipe in mod.GetConversions())
-                        regRecf.Invoke(mod, new object[] { recipe });
-                }
-        }
-
-    }
+					//Register recipes
+					foreach (ConvertRecipe recipe in mod.GetConversions())
+						regRecf.Invoke(mod, new object[] { recipe });
+				}
+			}
+		}
+	}
 
     public class mod_Raft : RaftMod
     {
@@ -80,10 +78,14 @@ namespace ShipLoader.API
 
             //Get all conversion blocks so they can be scanned for recipes later
 
-            AddConverter(ConvertType.grill, new Item[] { Item.ByName("Raft.Placeable_CookingStand_Food_One"), Item.ByName("Raft.Placeable_CookingStand_Food_Two") });
-            AddConverter(ConvertType.purifier, new Item[] { Item.ByName("Raft.Placeable_CookingStand_Purifier_One"), Item.ByName("Raft.Placeable_CookingStand_Purifier_Two") });
-            AddConverter(ConvertType.smelter, new Item[] { Item.ByName("Raft.Placeable_CookingStand_Smelter") });
-            AddConverter(ConvertType.paintMill, new Item[] { Item.ByName("Raft.Placeable_PaintMill") });
+            AddConverter(ConvertType.grill, 
+				new Item[] { Item.ByName("Raft.Placeable_CookingStand_Food_One"), Item.ByName("Raft.Placeable_CookingStand_Food_Two") });
+            AddConverter(ConvertType.purifier, 
+				new Item[] { Item.ByName("Raft.Placeable_CookingStand_Purifier_One"), Item.ByName("Raft.Placeable_CookingStand_Purifier_Two") });
+            AddConverter(ConvertType.smelter, 
+				new Item[] { Item.ByName("Raft.Placeable_CookingStand_Smelter") });
+            AddConverter(ConvertType.paintMill, 
+				new Item[] { Item.ByName("Raft.Placeable_PaintMill") });
 
             //Initialize recipes
             foreach (Item_Base ib in ItemManager.GetAllItems())
@@ -145,50 +147,52 @@ namespace ShipLoader.API
         {
             string type = "";
 
-            foreach (string t in GetConverterTypes())
-                foreach (Item i in GetConverters(t))
-                {
+			foreach (string t in GetConverterTypes())
+			{
+				foreach (Item i in GetConverters(t))
+				{
+					Block block;
 
-                    Block block;
+					if (i.baseItem == null || (block = i.baseItem.settings_buildable.GetBlockPrefab(DPS.Default)) == null || !(block is CookingStand))
+						continue;
 
-                    if (i.baseItem == null || (block = i.baseItem.settings_buildable.GetBlockPrefab(DPS.Default)) == null || !(block is CookingStand))
-                        continue;
+					CookingStand stand = (CookingStand)block;
 
-                    CookingStand stand = (CookingStand)block;
+					CookingSlot[] slots = block.GetComponentsInChildren<CookingSlot>();
 
-                    CookingSlot[] slots = block.GetComponentsInChildren<CookingSlot>();
+					if (slots.Length < 1)
+						continue;
 
-                    if (slots.Length < 1)
-                        continue;
+					CookingSlot slot = slots[0];
 
-                    CookingSlot slot = slots[0];
+					FieldInfo itemConnections = typeof(CookingSlot).GetField("itemConnections", BindingFlags.NonPublic | BindingFlags.Instance);
 
-                    FieldInfo itemConnections = typeof(CookingSlot).GetField("itemConnections", BindingFlags.NonPublic | BindingFlags.Instance);
+					if (slot == null || itemConnections == null)
+						continue;
 
-                    if (slot == null || itemConnections == null)
-                        continue;
+					object connectionso = itemConnections.GetValue(slot);
 
-                    object connectionso = itemConnections.GetValue(slot);
+					if (connectionso == null)
+						continue;
 
-                    if (connectionso == null)
-                        continue;
+					List<CookItemConnection> connections = (List<CookItemConnection>)connectionso;
 
-                    List<CookItemConnection> connections = (List<CookItemConnection>) connectionso;
+					if (connections == null)
+						continue;
 
-                    if (connections == null)
-                        continue;
+					foreach (CookItemConnection connection in connections)
+					{
+						if (connection.rawItem == null)
+							continue;
 
-                    foreach (CookItemConnection connection in connections)
-                    {
-                        if (connection.rawItem == null) continue;
-
-                        if (connection.cookableItem == it.baseItem)
-                        {
-                            type = t;
-                            goto end;
-                        }
-                    }
-                }
+						if (connection.cookableItem == it.baseItem)
+						{
+							type = t;
+							goto end;
+						}
+					}
+				}
+			}
 
             end:
 

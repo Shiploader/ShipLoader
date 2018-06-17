@@ -4,11 +4,15 @@ using System;
 using System.Reflection;
 using UnityEngine;
 using ShipLoader.API.Exceptions;
+using System.IO;
+using ShipLoader.API.AssetBundles;
 
 namespace ShipLoader.API
 {
     public class RaftMod : Mod
     {
+		private List<AssetBundleReference> _assetBundles = new List<AssetBundleReference>();
+
 		public RaftMod()
 		{
 			if (mods.ContainsKey(Metadata.ModName))
@@ -19,10 +23,14 @@ namespace ShipLoader.API
 			mods[Metadata.ModName] = this;
 		}				
 
+		public void RegisterAssetBundle(AssetBundleReference reference)
+		{
+			_assetBundles.Add(reference);
+		}
+
         //Get an item; returns null if it doesn't exist
         public Item GetItem(string name)
         {
-
             if (!items.ContainsKey(name))
                 return null;
 
@@ -57,7 +65,6 @@ namespace ShipLoader.API
         //Adds recipe if it doesn't already exist
         protected Recipe AddRecipe(Recipe r)
         {
-
             if (recipes.Contains(r))
                 return r;
 

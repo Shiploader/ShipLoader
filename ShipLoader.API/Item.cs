@@ -41,10 +41,8 @@ namespace ShipLoader.API
         Tool
     }
 
-
     public class Item
     {
-
         public RaftMod owner { get; private set; } = null;
         public string name { get; private set; }
         public int id { get; private set; } = 0;

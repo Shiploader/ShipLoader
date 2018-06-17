@@ -6,7 +6,6 @@ namespace ShipLoader.API
 
     public class RecipeShape
     {
-
         public Item[] items { get; private set; }
         public int number { get; private set; }
 
@@ -20,7 +19,6 @@ namespace ShipLoader.API
 
     public class Recipe
     {
-
         public RaftMod owner { get; private set; } = null;
 
         public Item result { get; private set; }
