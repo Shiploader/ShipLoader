@@ -3,22 +3,21 @@ using System.Collections.Generic;
 using System;
 using System.Reflection;
 using UnityEngine;
+using ShipLoader.API.Exceptions;
 
 namespace ShipLoader.API
 {
-
     public class RaftMod : Mod
     {
+		public RaftMod()
+		{
+			if (mods.ContainsKey(Metadata.ModName))
+			{
+				throw new DuplicateModException(Metadata.ModName);
+			}
 
-        public RaftMod()
-        {
-            if (!mods.ContainsKey(Metadata.ModName))
-            {
-                mods[Metadata.ModName] = this;
-            }
-            else
-                Console.WriteLine("ERROR: Same mod name detected twice; Please fix this!");
-        }
+			mods[Metadata.ModName] = this;
+		}				
 
         //Get an item; returns null if it doesn't exist
         public Item GetItem(string name)
