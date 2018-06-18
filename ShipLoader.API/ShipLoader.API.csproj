@@ -35,6 +35,7 @@
     <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="AssetBundleReference.cs" />
     <Compile Include="DuplicateModException.cs" />
     <Compile Include="Item.cs" />
     <Compile Include="Raft_Mod.cs" />
