@@ -96,6 +96,7 @@ namespace ShipLoader.API
         public ItemCategory category { get; private set; }
         public ItemUse use { get; private set; }
         public string subcategory { get; private set; }
+        public Sprite sprite { get; private set; } = null;
 
         public string fullName
         {
@@ -110,7 +111,11 @@ namespace ShipLoader.API
 
         private static Dictionary<Item_Base, Item> items = new Dictionary<Item_Base, Item>();
         private static Dictionary<string, Item> itemsByName = new Dictionary<string, Item>();
-        
+
+        /// <summary>
+        /// Automatically detects sprite in default asset bundle of mod. (item.{name}) <para />
+        /// If you want to manually initialize it, use InitSprite on this item.
+        /// </summary>
         /// <param name="name">Name you access the item by</param>
         /// <param name="displayName">Name you see ingame</param>
         /// <param name="description">Description you see ingame</param>
@@ -156,7 +161,10 @@ namespace ShipLoader.API
 
                 //Inventory
 
-                item.settings_Inventory = new ItemInstance_Inventory(null, "Item/" + fullName, stackSize);
+                if(sprite == null)      //Look for default sprite
+                    sprite = owner.GetAsset<Sprite>("item." + name);
+
+                item.settings_Inventory = new ItemInstance_Inventory(sprite, "Item/" + fullName, stackSize);
                 item.settings_Inventory.Description = description;
                 item.settings_Inventory.DisplayName = displayName;
 
@@ -257,6 +265,17 @@ namespace ShipLoader.API
                 return null;
 
             return itemsByName[name];
+        }
+
+        /// <summary>
+        /// Inits the sprite of this Item. <para />
+        /// Normally it is done automatically (by looking for item.{name} in the default asset bundle).
+        /// </summary>
+        /// <param name="sprite">Sprite loaded from your own AssetBundle</param>
+        public void InitSprite(Sprite sprite)
+        {
+            if (this.sprite == null && this.baseItem == null)
+                this.sprite = sprite;
         }
 
     }

@@ -47,14 +47,19 @@ void Harpoon::hook(DWORD processId, std::string dllPath)
 	printf("%s::initialize found at %p\n", dllPath.c_str(), (void*) dllFuncOff);
 
 	//Get process
-	HANDLE process = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_CREATE_THREAD | PROCESS_VM_OPERATION | PROCESS_VM_WRITE | PROCESS_VM_READ, FALSE, processId);
+	HANDLE process = OpenProcess(
+		PROCESS_QUERY_INFORMATION | PROCESS_CREATE_THREAD | 
+		PROCESS_VM_OPERATION | PROCESS_VM_WRITE | PROCESS_VM_READ,
+		FALSE, processId
+	);
+
 	check(process, "Couldn't open process");
 
 	//Copy the string into the other process
 	LPVOID dllStr = allocString(process, dllPath);
 
 	//Load the dll into memory
-	PTHREAD_START_ROUTINE loadLibraryProc = (PTHREAD_START_ROUTINE) GetProcAddress(GetModuleHandle(TEXT("Kernel32")), "LoadLibraryA");
+	PTHREAD_START_ROUTINE loadLibraryProc = (PTHREAD_START_ROUTINE) GetProcAddress(GetModuleHandle(TEXT("kernel32")), "LoadLibraryA");
 	check(loadLibraryProc, "Couldn't get 'load library'");
 
 	//Run the load library function
@@ -70,9 +75,10 @@ void Harpoon::hook(DWORD processId, std::string dllPath)
 	DWORD needed = 0;
 	EnumProcessModules(process, handles, sizeof(handles), &needed);
 
+	char name[1024];
+
 	for (int i = 0; i < needed / sizeof(handles[0]); ++i) {
 
-		char name[1024];
 		GetModuleBaseName(process, handles[i], name, sizeof(name));
 
 		if (std::string(name) == dllName) {

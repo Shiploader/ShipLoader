@@ -50,10 +50,6 @@ BOOL WINAPI DllMain(HINSTANCE, DWORD fdwReason, LPVOID)  {
 
 }
 
-int mainFunc() {
-	return 1;
-}
-
 extern "C" __declspec(dllexport) DWORD initialize(LPVOID param) {
 
 	//Initialize console

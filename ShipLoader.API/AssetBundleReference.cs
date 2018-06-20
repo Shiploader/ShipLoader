@@ -8,7 +8,8 @@ namespace ShipLoader.API.AssetBundles
 {
 	public class AssetBundleReference
 	{
-		AssetBundle AssetBundle => _request.assetBundle;
+
+		public AssetBundle assetBundle => _request.assetBundle;
 
 		private AssetBundleCreateRequest _request;
 

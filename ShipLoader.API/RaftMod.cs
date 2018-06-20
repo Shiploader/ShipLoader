@@ -4,16 +4,17 @@ using System;
 using System.Reflection;
 using UnityEngine;
 using ShipLoader.API.Exceptions;
-using System.IO;
+//using System.IO;
 using ShipLoader.API.AssetBundles;
+using System.ComponentModel;
 
 namespace ShipLoader.API
 {
+
     public class RaftMod : Mod
     {
-		private List<AssetBundleReference> _assetBundles = new List<AssetBundleReference>();
 
-		public RaftMod()
+        public RaftMod()
 		{
 			if (mods.ContainsKey(Metadata.ModName))
 			{
@@ -21,11 +22,18 @@ namespace ShipLoader.API
 			}
 
 			mods[Metadata.ModName] = this;
+
+            if(defaultAssetBundle == null)
+                defaultAssetBundle = "./mods/" + Metadata.ModName + "/" + Metadata.ModName + "." + Metadata.ModVersion;
+
+            RegisterAssetBundle(assetBundle = new AssetBundleReference(defaultAssetBundle));
 		}				
 
-		public void RegisterAssetBundle(AssetBundleReference reference)
+		public int RegisterAssetBundle(AssetBundleReference reference)
 		{
-			_assetBundles.Add(reference);
+            int id = assetBundles.Count;
+			assetBundles.Add(reference);
+            return id;
 		}
 
         //Get an item; returns null if it doesn't exist
@@ -52,7 +60,7 @@ namespace ShipLoader.API
                 typeof(Item).GetProperty("id").SetValue(i, itemOffset, null);
                 typeof(Item).GetProperty("owner").SetValue(i, this, null);
             }
-
+            
             items[name] = i;
 
             if (!isOwned)
@@ -130,7 +138,7 @@ namespace ShipLoader.API
 
                     CookItemConnection recipe = new CookItemConnection();
                     recipe.cookableItem = r.input.baseItem;
-                    recipe.rawItem = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                    recipe.rawItem = GameObject.CreatePrimitive(PrimitiveType.Sphere);
                     recipe.cookedItem = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
                     connections.Add(recipe);
 
@@ -188,6 +196,17 @@ namespace ShipLoader.API
             return convertRecipes;
         }
 
+        /// <summary>
+        /// Get an asset from an asset bundle
+        /// </summary>
+        /// <param name="assetName">The asset to look up</param>
+        /// <param name="id">Optional, used for getting assets from different asset bundles (besides the default 0th asset bundle)</param>
+        /// <returns></returns>
+        public T GetAsset<T>(string assetName, int id = 0) where T : UnityEngine.Object
+        {
+            return assetBundles[id].assetBundle.LoadAsset<T>(assetName);
+        }
+
         public static RaftMod Get(string id)
         {
             if (!mods.ContainsKey(id))
@@ -211,5 +230,17 @@ namespace ShipLoader.API
         private Dictionary<string, Item> items = new Dictionary<string, Item>();
         private List<Recipe> recipes = new List<Recipe>();
         private List<ConvertRecipe> convertRecipes = new List<ConvertRecipe>();
+
+        private List<AssetBundleReference> assetBundles = new List<AssetBundleReference>();
+
+        /// <summary>
+        /// The default asset bundle it should load <para />
+        /// If this is not set, it will use ModName.ModVersion by default <para />
+        /// This means that Garbage mod version 0.1 would use asset bundle Garbage.0.1 in the mod directory <para />
+        /// If you want to load multiple asset bundles, you can use RegisterAssetBundle yourself.
+        /// </summary>
+        protected string defaultAssetBundle = null;
+
+        public AssetBundleReference assetBundle { get; private set; } = null;
     }
 }
