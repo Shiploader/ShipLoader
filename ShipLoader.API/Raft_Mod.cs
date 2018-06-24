@@ -4,60 +4,121 @@ using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
 using System;
+using UnityEngine.SceneManagement;
 
 namespace ShipLoader.API
 {
-	/// <summary>
-	/// A class for handling all mod behaviour that occurs run-time or pre-init
-	/// </summary>
-	public class ModHelper : MonoBehaviour
-	{
-		void Start()
-		{
-			MethodInfo regRecf = typeof(RaftMod).GetMethod("RegisterRecipe", BindingFlags.NonPublic | BindingFlags.Instance);
-			PropertyInfo recipep = typeof(Item).GetProperty("recipe");
-			PropertyInfo convertRecipep = typeof(Item).GetProperty("convertRecipe");
-			MethodInfo initf = typeof(Item).GetMethod("Init", BindingFlags.NonPublic | BindingFlags.Instance);
+    /// <summary>
+    /// A class for handling all mod behaviour that occurs run-time or pre-init
+    /// </summary>
+    public class ModHelper : MonoBehaviour
+    {
 
-			foreach (RaftMod mod in RaftMod.Get())
-			{
-				if (mod.Metadata.ModName != "Raft")
-				{
-					//Register all recipes into items
-					//Which is how it works... for now
-					foreach (Recipe recipe in mod.GetRecipes())
-					{
-						Item i = recipe.result;
+        void UpdateSceneChange()
+        {
+            bool pInGame = inGame;
+            inGame = GameObject.Find("_CanvasGame_New") != null;
 
-						if (recipep.GetValue(i, null) != null)
-							Console.WriteLine("Couldn't register recipe; \"" + recipe.ToString() + "\", it was already occupied. This is a Raft Game Architecture problem.");
-						else
-							recipep.SetValue(i, recipe, null);
-					}
+            foreach (ISceneListener sceneListener in RaftMod.GetInterfaces<ISceneListener>())
+            {
 
-					//Register all convert recipes into items
-					//Which is how it works... for now
-					foreach (ConvertRecipe recipe in mod.GetConversions())
-					{
+                SceneUpdateType sceneUpdate = SceneUpdateType.Game_join;
 
-						Item i = recipe.input;
+                if (!pInGame && inGame)
+                    sceneListener.OnGameJoin();
+                else if (pInGame && !inGame)
+                {
+                    sceneListener.OnGameLeave();
+                    sceneUpdate = SceneUpdateType.Game_leave;
+                }
+                else if (pInGame && inGame)
+                {
+                    sceneListener.OnGameChange();
+                    sceneUpdate = SceneUpdateType.Game_change;
+                }
+                else if (!pInGame && !inGame)
+                {
+                    sceneListener.OnMenuChange();
+                    sceneUpdate = SceneUpdateType.Menu_change;
+                }
 
-						if (convertRecipep.GetValue(i, null) != null)
-							Console.WriteLine("Couldn't register convert recipe; \"" + recipe.ToString() + "\", it was already occupied. This is a Raft Game Architecture problem.");
-						else
-							convertRecipep.SetValue(i, recipe, null);
+                sceneListener.OnSceneUpdate(sceneUpdate);
+            }
+        }
 
-					}
+        void OnSceneChange(Scene scene, LoadSceneMode mode)
+        {
+            UpdateSceneChange();
+        }
 
-					foreach (Item i in mod.GetItems())
-						initf.Invoke(i, null);
+        void Start()
+        {
+            UpdateSceneChange();
 
-					//Register recipes
-					foreach (ConvertRecipe recipe in mod.GetConversions())
-						regRecf.Invoke(mod, new object[] { recipe });
-				}
-			}
-		}
+            SceneManager.sceneLoaded += OnSceneChange;
+
+            //Initialize mods
+
+            MethodInfo regRecf = typeof(RaftMod).GetMethod("RegisterRecipe", BindingFlags.NonPublic | BindingFlags.Instance);
+            PropertyInfo recipep = typeof(Item).GetProperty("recipe");
+            PropertyInfo convertRecipep = typeof(Item).GetProperty("convertRecipe");
+            MethodInfo initf = typeof(Item).GetMethod("Init", BindingFlags.NonPublic | BindingFlags.Instance);
+
+            foreach (RaftMod mod in RaftMod.Get())
+            {
+                if (mod.Metadata.ModName != "Raft")
+                {
+                    //Register all recipes into items
+                    //Which is how it works... for now
+                    foreach (Recipe recipe in mod.GetRecipes())
+                    {
+                        Item i = recipe.result;
+
+                        if (recipep.GetValue(i, null) != null)
+                            Console.WriteLine("Couldn't register recipe; \"" + recipe.ToString() + "\", it was already occupied. This is a Raft Game Architecture problem.");
+                        else
+                            recipep.SetValue(i, recipe, null);
+                    }
+
+                    //Register all convert recipes into items
+                    //Which is how it works... for now
+                    foreach (ConvertRecipe recipe in mod.GetConversions())
+                    {
+
+                        Item i = recipe.input;
+
+                        if (convertRecipep.GetValue(i, null) != null)
+                            Console.WriteLine("Couldn't register convert recipe; \"" + recipe.ToString() + "\", it was already occupied. This is a Raft Game Architecture problem.");
+                        else
+                            convertRecipep.SetValue(i, recipe, null);
+
+                    }
+
+                    foreach (Item i in mod.GetItems())
+                        initf.Invoke(i, null);
+
+                    //Register recipes
+                    foreach (ConvertRecipe recipe in mod.GetConversions())
+                        regRecf.Invoke(mod, new object[] { recipe });
+                }
+            }
+        }
+
+        void Update()
+        {
+
+            foreach (ISceneListener sceneListener in RaftMod.GetInterfaces<ISceneListener>())
+            {
+                if (inGame)
+                    sceneListener.UpdateGame();
+                else
+                    sceneListener.UpdateMenu();
+
+                sceneListener.Update();
+            }
+        }
+
+        public bool inGame { get; private set; } = false;
 	}
 
     /// <summary>

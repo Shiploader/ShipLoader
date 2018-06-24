@@ -37,6 +37,7 @@
   <ItemGroup>
     <Compile Include="AssetBundleReference.cs" />
     <Compile Include="DuplicateModException.cs" />
+    <Compile Include="ISceneListener.cs" />
     <Compile Include="Item.cs" />
     <Compile Include="Raft_Mod.cs" />
     <Compile Include="PlayerHelper.cs" />

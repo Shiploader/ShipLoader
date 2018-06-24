@@ -2,18 +2,17 @@
 using System.Collections.Generic;
 using System;
 using System.Reflection;
+using System.Linq;
 using UnityEngine;
 using ShipLoader.API.Exceptions;
-//using System.IO;
 using ShipLoader.API.AssetBundles;
-using System.ComponentModel;
 
 namespace ShipLoader.API
 {
 
     public class RaftMod : Mod
     {
-
+        
         public RaftMod()
 		{
 			if (mods.ContainsKey(Metadata.ModName))
@@ -27,7 +26,13 @@ namespace ShipLoader.API
                 defaultAssetBundle = "./mods/" + Metadata.ModName + "/" + Metadata.ModName + "." + Metadata.ModVersion;
 
             RegisterAssetBundle(assetBundle = new AssetBundleReference(defaultAssetBundle));
-		}				
+
+            foreach (Type t in GetType().GetInterfaces())
+                if (!interfaces.ContainsKey(t))
+                    interfaces[t] = new List<RaftMod> { this };
+                else
+                    interfaces[t].Add(this);
+        }				
 
 		public int RegisterAssetBundle(AssetBundleReference reference)
 		{
@@ -158,14 +163,9 @@ namespace ShipLoader.API
 		protected void AddConverter(string type, params Item[] interfaces)
 		{
 			if (!converter.ContainsKey(type))
-			{
 				converter.Add(type, new List<Item>(interfaces));
-			}
-
 			else
-			{
 				converter[type].InsertRange(converter[type].Count, interfaces);
-			}
 		}
 
         public static IEnumerable<Item> GetConverters(string type)
@@ -196,6 +196,14 @@ namespace ShipLoader.API
             return convertRecipes;
         }
 
+        public static IEnumerable<T> GetInterfaces<T>()
+        {
+            if (!interfaces.ContainsKey(typeof(T)))
+                return Enumerable.Empty<T>();
+
+            return interfaces[typeof(T)].Cast<T>();
+        }
+
         /// <summary>
         /// Get an asset from an asset bundle
         /// </summary>
@@ -224,6 +232,7 @@ namespace ShipLoader.API
         
         private static Dictionary<string, RaftMod> mods = new Dictionary<string, RaftMod>();
         private static Dictionary<string, List<Item>> converter = new Dictionary<string, List<Item>>();
+        private static Dictionary<Type, List<RaftMod>> interfaces = new Dictionary<Type, List<RaftMod>>();
 
         private static int itemOffset = 399;
 
