@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27428.2043
+VisualStudioVersion = 15.0.26730.12
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShipLoader.UI", "ShipLoader.UI\ShipLoader.UI.csproj", "{E66F1B18-C4DD-4FFF-B6EE-FAEAC7A1A939}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -12,7 +12,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShipLoader.UI", "ShipLoader
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShipLoader.API", "ShipLoader.API\ShipLoader.API.csproj", "{E5296C0B-B41A-45BE-83CB-C41E7C77F7B6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShipLoader.TestMod", "ShipLoader.TestMod\ShipLoader.TestMod.csproj", "{EA5E3B96-E6FD-4739-96C7-FF2AE336E98E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShipLoader.Garbage", "ShipLoader.TestMod\ShipLoader.Garbage.csproj", "{EA5E3B96-E6FD-4739-96C7-FF2AE336E98E}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Harpoon", "Harpoon\Harpoon.vcxproj", "{EE7961DB-2CBE-450B-9484-899FACB8CD1F}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -32,6 +32,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ShipLoader", "ShipLoader", "{7D8055F9-6A7F-4753-8056-B4F798C6204B}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Mods", "Mods", "{2309944D-CDC6-42DC-9E31-A8C5EF53E65B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShipLoader.Balance", "ShipLoader.Balance\ShipLoader.Balance.csproj", "{B8F7E746-B315-4911-89EC-63E7ECC1A6E4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -111,6 +113,18 @@ Global
 		{883C4B5B-DF41-49BD-8EFE-567F1DBD793D}.Release|x64.Build.0 = Release|Any CPU
 		{883C4B5B-DF41-49BD-8EFE-567F1DBD793D}.Release|x86.ActiveCfg = Release|Any CPU
 		{883C4B5B-DF41-49BD-8EFE-567F1DBD793D}.Release|x86.Build.0 = Release|Any CPU
+		{B8F7E746-B315-4911-89EC-63E7ECC1A6E4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B8F7E746-B315-4911-89EC-63E7ECC1A6E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B8F7E746-B315-4911-89EC-63E7ECC1A6E4}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{B8F7E746-B315-4911-89EC-63E7ECC1A6E4}.Debug|x64.Build.0 = Debug|Any CPU
+		{B8F7E746-B315-4911-89EC-63E7ECC1A6E4}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{B8F7E746-B315-4911-89EC-63E7ECC1A6E4}.Debug|x86.Build.0 = Debug|Any CPU
+		{B8F7E746-B315-4911-89EC-63E7ECC1A6E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B8F7E746-B315-4911-89EC-63E7ECC1A6E4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B8F7E746-B315-4911-89EC-63E7ECC1A6E4}.Release|x64.ActiveCfg = Release|Any CPU
+		{B8F7E746-B315-4911-89EC-63E7ECC1A6E4}.Release|x64.Build.0 = Release|Any CPU
+		{B8F7E746-B315-4911-89EC-63E7ECC1A6E4}.Release|x86.ActiveCfg = Release|Any CPU
+		{B8F7E746-B315-4911-89EC-63E7ECC1A6E4}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -122,6 +136,7 @@ Global
 		{EE7961DB-2CBE-450B-9484-899FACB8CD1F} = {1FD83968-B71C-4404-80FF-09B97C701BDA}
 		{7C2542CD-FFB7-4CB6-A94D-A2EF606EF4BE} = {1FD83968-B71C-4404-80FF-09B97C701BDA}
 		{883C4B5B-DF41-49BD-8EFE-567F1DBD793D} = {1FD83968-B71C-4404-80FF-09B97C701BDA}
+		{B8F7E746-B315-4911-89EC-63E7ECC1A6E4} = {2309944D-CDC6-42DC-9E31-A8C5EF53E65B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {9BFD3DE8-72D6-49D1-AE55-3BEF3E01E018}

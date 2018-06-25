@@ -14,17 +14,17 @@
         /// <summary>
         /// Called when a game is active
         /// </summary>
-        void UpdateGame();
+        void UpdateGame(float deltaTime);
 
         /// <summary>
         /// Called when the menu is active
         /// </summary>
-        void UpdateMenu();
+        void UpdateMenu(float deltaTime);
 
         /// <summary>
         /// Called every update
         /// </summary>
-        void Update();
+        void Update(float deltaTime);
 
         /// <summary>
         /// Called when there's a different scene loaded

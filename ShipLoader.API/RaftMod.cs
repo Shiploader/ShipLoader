@@ -168,6 +168,16 @@ namespace ShipLoader.API
 				converter[type].InsertRange(converter[type].Count, interfaces);
 		}
 
+        protected void ModifyItem(Item item, ItemField field, object o)
+        {
+            if (item != null && o != null)
+                itemModifications.Add(new ItemModification(this, item, field, o));
+        }
+
+        protected void RemoveRecipe(Recipe r){
+            recipes.Remove(r);
+        }
+
         public static IEnumerable<Item> GetConverters(string type)
         {
 			if (!converter.ContainsKey(type))
@@ -194,6 +204,11 @@ namespace ShipLoader.API
         public IEnumerable<ConvertRecipe> GetConversions()
         {
             return convertRecipes;
+        }
+
+        public IEnumerable<ItemModification> GetItemModifications()
+        {
+            return itemModifications;
         }
 
         public static IEnumerable<T> GetInterfaces<T>()
@@ -239,6 +254,7 @@ namespace ShipLoader.API
         private Dictionary<string, Item> items = new Dictionary<string, Item>();
         private List<Recipe> recipes = new List<Recipe>();
         private List<ConvertRecipe> convertRecipes = new List<ConvertRecipe>();
+        private List<ItemModification> itemModifications = new List<ItemModification>();
 
         private List<AssetBundleReference> assetBundles = new List<AssetBundleReference>();
 

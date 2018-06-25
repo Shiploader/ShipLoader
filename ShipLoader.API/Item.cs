@@ -2,23 +2,10 @@
 using System.Reflection;
 using System.Collections.Generic;
 using UnityEngine;
+using ShipLoader.API.Exceptions;
 
 namespace ShipLoader.API
 {
-
-    /// <summary>
-    /// A property of an Item that can be edited by mods
-    /// </summary>
-    public enum ItemField
-    {
-        DisplayName,
-        Description,
-        Durability,
-        StackSize,
-        Category,
-        Sprite,
-        Subcategory
-    }
 
     /// <summary>
     /// A category for items; this also tells where to put them into the crafting menu
@@ -156,12 +143,12 @@ namespace ShipLoader.API
                 //Item itself
 
                 item = baseItem = ScriptableObject.CreateInstance<Item_Base>();
-                item.Initialize(id, fullName, (ItemType) use, durability);
+                item.Initialize(id, fullName, (ItemType)use, durability);
                 item.name = fullName;
 
                 //Inventory
 
-                if(sprite == null)      //Look for default sprite
+                if (sprite == null)      //Look for default sprite
                     sprite = owner.GetAsset<Sprite>("item." + name);
 
                 item.settings_Inventory = new ItemInstance_Inventory(sprite, "Item/" + fullName, stackSize);
@@ -177,40 +164,13 @@ namespace ShipLoader.API
 
                 //'Cooking' Recipe (conversion recipe)
 
-                if(convertRecipe != null)
+                if (convertRecipe != null)
                     item.settings_cookable = new ItemInstance_Cookable(convertRecipe.slots, convertRecipe.time, new Cost(convertRecipe.output.baseItem, convertRecipe.outputAmount));
                 else
                     item.settings_cookable = new ItemInstance_Cookable(0, 0, null);
 
                 //Crafting recipe
-
-                item.settings_recipe = new ItemInstance_Recipe((CraftingCategory)category, false, recipe == null ? false : recipe.discoveredByDefault, subcategory, 0);
-
-                if (recipe != null)
-                {
-
-                    if (recipe.blueprint != null)
-                        typeof(Item_Base).GetField("BlueprintItem", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(item.settings_recipe, recipe.blueprint.baseItem);
-
-                    typeof(ItemInstance_Recipe).GetField("amountToCraft", BindingFlags.Instance | BindingFlags.NonPublic)
-                    .SetValue(item.settings_recipe, recipe.amount);
-
-                    List<CostMultiple> costs = new List<CostMultiple>();
-
-                    foreach (RecipeShape shape in recipe.recipe)
-                    {
-                        Item_Base[] itemBase = new Item_Base[shape.items.Length];
-
-                        int j = 0;
-
-                        foreach (Item i in shape.items)
-                            itemBase[j++] = i.baseItem;
-
-                        costs.Add(new CostMultiple(itemBase, shape.amount));
-                    }
-
-                    item.settings_recipe.NewCost = costs.ToArray();
-                }
+                RefreshRecipe();
 
                 //Insertion
 
@@ -234,6 +194,36 @@ namespace ShipLoader.API
             Item.items[item] = this;
             itemsByName[fullName] = this;
             return true;
+        }
+
+        private void RefreshRecipe()
+        {
+            baseItem.settings_recipe = new ItemInstance_Recipe((CraftingCategory)category, false, recipe == null ? false : recipe.discoveredByDefault, subcategory, 0);
+
+            if (recipe != null)
+            {
+
+                if (recipe.blueprint != null)
+                    typeof(Item_Base).GetField("BlueprintItem", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(baseItem.settings_recipe, recipe.blueprint.baseItem);
+
+                typeof(ItemInstance_Recipe).GetField("amountToCraft", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(baseItem.settings_recipe, recipe.amount);
+
+                List<CostMultiple> costs = new List<CostMultiple>();
+
+                foreach (RecipeShape shape in recipe.recipe)
+                {
+                    Item_Base[] itemBase = new Item_Base[shape.items.Length];
+
+                    int j = 0;
+
+                    foreach (Item i in shape.items)
+                        itemBase[j++] = i.baseItem;
+
+                    costs.Add(new CostMultiple(itemBase, shape.amount));
+                }
+
+                baseItem.settings_recipe.NewCost = costs.ToArray();
+            }
         }
 
         public override string ToString()
@@ -276,6 +266,102 @@ namespace ShipLoader.API
         {
             if (this.sprite == null && this.baseItem == null)
                 this.sprite = sprite;
+        }
+
+        private void Apply(ItemModification mod)
+        {
+
+            if (!mod.IsValid())
+                throw new ItemModificationException(fullName);
+
+            switch (mod.field)
+            {
+                case ItemField.DisplayName:
+
+                    displayName = (string) mod.newValue;
+
+                    if (baseItem != null)
+                        baseItem.settings_Inventory.DisplayName = displayName;
+
+                    break;
+
+                case ItemField.Description:
+                    
+                    description = (string) mod.newValue;
+
+                    if (baseItem != null)
+                        baseItem.settings_Inventory.Description = description;
+
+                    break;
+
+                case ItemField.Subcategory:
+
+                    subcategory = (string)mod.newValue;
+
+                    if (baseItem != null)
+                        typeof(ItemInstance_Recipe).GetProperty("SubCategory").SetValue(baseItem.settings_recipe, subcategory, null);
+
+                    break;
+
+                case ItemField.Durability:
+                    
+                    durability = (int) mod.newValue;
+
+                    if (baseItem != null)
+                        typeof(Item_Base).GetField("maxUses", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(baseItem, durability);
+                    
+                    break;
+
+                case ItemField.StackSize:
+
+                    stackSize = (int) mod.newValue;
+
+                    if (baseItem != null)
+                        typeof(ItemInstance_Inventory).GetField("stackSize", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(baseItem.settings_Inventory, stackSize);
+
+                    break;
+
+                case ItemField.Sprite:
+
+                    sprite = (Sprite) mod.newValue;
+
+                    if (baseItem != null)
+                        baseItem.settings_Inventory.Sprite = sprite;
+
+                    break;
+
+                case ItemField.Use:
+
+                    use = (ItemUse) mod.newValue;
+
+                    if (baseItem != null)
+                        typeof(Item_Base).GetField("type", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(baseItem, (ItemType) use);
+
+                    break;
+
+                case ItemField.Category:
+
+                    category = (ItemCategory) mod.newValue;
+
+                    if (baseItem != null)
+                        typeof(ItemInstance_Recipe).GetProperty("Category", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(baseItem.settings_recipe, (CraftingCategory) category, null);
+
+                    break;
+
+                case ItemField.Recipe:
+                    
+                    typeof(RaftMod).GetMethod("RemoveRecipe", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(recipe.owner, new object[] { recipe });
+
+                    recipe = (Recipe) mod.newValue;
+
+                    if (baseItem != null)
+                        RefreshRecipe();
+
+                    break;
+                    
+                default:
+                    return;
+            }
         }
 
     }

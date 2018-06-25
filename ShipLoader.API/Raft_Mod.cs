@@ -63,6 +63,7 @@ namespace ShipLoader.API
             PropertyInfo recipep = typeof(Item).GetProperty("recipe");
             PropertyInfo convertRecipep = typeof(Item).GetProperty("convertRecipe");
             MethodInfo initf = typeof(Item).GetMethod("Init", BindingFlags.NonPublic | BindingFlags.Instance);
+            MethodInfo applyf = typeof(Item).GetMethod("Apply", BindingFlags.NonPublic | BindingFlags.Instance);
 
             foreach (RaftMod mod in RaftMod.Get())
             {
@@ -93,13 +94,21 @@ namespace ShipLoader.API
                             convertRecipep.SetValue(i, recipe, null);
 
                     }
-
+                    
+                    //Init all items
                     foreach (Item i in mod.GetItems())
                         initf.Invoke(i, null);
 
                     //Register recipes
                     foreach (ConvertRecipe recipe in mod.GetConversions())
                         regRecf.Invoke(mod, new object[] { recipe });
+
+                    //Apply item modifications
+                    foreach (ItemModification im in mod.GetItemModifications())
+                    {
+                        Console.WriteLine(im.owner.Metadata.ModName + ": " + im.item.fullName + "." + im.field.ToString() + " -> " + im.newValue);
+                        applyf.Invoke(im.item, new object[] { im });
+                    }
                 }
             }
         }
@@ -110,11 +119,11 @@ namespace ShipLoader.API
             foreach (ISceneListener sceneListener in RaftMod.GetInterfaces<ISceneListener>())
             {
                 if (inGame)
-                    sceneListener.UpdateGame();
+                    sceneListener.UpdateGame(Time.deltaTime);
                 else
-                    sceneListener.UpdateMenu();
+                    sceneListener.UpdateMenu(Time.deltaTime);
 
-                sceneListener.Update();
+                sceneListener.Update(Time.deltaTime);
             }
         }
 
