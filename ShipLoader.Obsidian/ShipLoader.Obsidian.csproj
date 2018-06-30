@@ -4,20 +4,19 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{E5296C0B-B41A-45BE-83CB-C41E7C77F7B6}</ProjectGuid>
+    <ProjectGuid>{450B9D9E-6E54-4EA4-9307-B2CFEFD36733}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ShipLoader.API</RootNamespace>
-    <AssemblyName>ShipLoader.API</AssemblyName>
+    <RootNamespace>ShipLoader.Obsidian</RootNamespace>
+    <AssemblyName>ShipLoader.Obsidian</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>..\Build\</OutputPath>
+    <OutputPath>..\Build\mods\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -31,44 +30,30 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <PropertyGroup>
-    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
-  </PropertyGroup>
-  <ItemGroup>
-    <Compile Include="AssetBundleReference.cs" />
-    <Compile Include="DuplicateModException.cs" />
-    <Compile Include="ISceneListener.cs" />
-    <Compile Include="Item.cs" />
-    <Compile Include="ItemModification.cs" />
-    <Compile Include="ItemModificationException.cs" />
-    <Compile Include="Raft_Mod.cs" />
-    <Compile Include="PlayerHelper.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RaftMod.cs" />
-    <Compile Include="Recipe.cs" />
-    <Compile Include="ConvertRecipe.cs" />
-    <Compile Include="Weapon.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Harpoon.Core\Harpoon.Core.csproj">
-      <Project>{883c4b5b-df41-49bd-8efe-567f1dbd793d}</Project>
-      <Name>Harpoon.Core</Name>
-    </ProjectReference>
-  </ItemGroup>
   <ItemGroup>
     <Reference Include="Assembly-CSharp, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\programs\steam\steamapps\common\Raft\Raft_Data\Managed\Assembly-CSharp.dll</HintPath>
-    </Reference>
-    <Reference Include="Assembly-CSharp-firstpass, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\programs\steam\steamapps\common\Raft\Raft_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="UnityEngine, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\programs\steam\steamapps\common\Raft\Raft_Data\Managed\UnityEngine.dll</HintPath>
     </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Obsidian_Mod.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Harpoon.Core\Harpoon.Core.csproj">
+      <Project>{883c4b5b-df41-49bd-8efe-567f1dbd793d}</Project>
+      <Name>Harpoon.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ShipLoader.API\ShipLoader.API.csproj">
+      <Project>{e5296c0b-b41a-45be-83cb-c41e7c77f7b6}</Project>
+      <Name>ShipLoader.API</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

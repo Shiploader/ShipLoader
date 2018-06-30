@@ -19,6 +19,13 @@ namespace ShipLoader.API
             bool pInGame = inGame;
             inGame = GameObject.Find("_CanvasGame_New") != null;
 
+            MethodInfo initPlayerf = typeof(Item).GetMethod("InitPlayer", BindingFlags.NonPublic | BindingFlags.Instance);
+
+            if (!pInGame && inGame)
+                foreach (RaftMod mod in RaftMod.Get())
+                    foreach (Item item in mod.GetItems())
+                        initPlayerf.Invoke(item, new object[] { PlayerHelper.GetPlayer("") });
+
             foreach (ISceneListener sceneListener in RaftMod.GetInterfaces<ISceneListener>())
             {
 

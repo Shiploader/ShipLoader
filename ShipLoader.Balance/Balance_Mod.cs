@@ -13,6 +13,7 @@ namespace ShipLoader.Balance
             ModName = "Balance",
             ModDescription = "This mod changes durability, stack sizes and recipes to reduce the feel of Raft being a farming simulator. \"Perfectly balanced. As all things should be.\"",
             ModVersion = "0.1",
+            GameVersion = "1.03",
             Priority = 1
         };
 
@@ -26,10 +27,12 @@ namespace ShipLoader.Balance
             ModifyItem(Item.ByName("Raft.AirBottle"), ItemField.Durability, 800);
             ModifyItem(Item.ByName("Raft.Flipper"), ItemField.Durability, 800);
             ModifyItem(Item.ByName("Raft.Battery"), ItemField.Durability, 75);
-            ModifyItem(Item.ByName("Raft.Axe"), ItemField.Durability, 120);
+            ModifyItem(Item.ByName("Raft.Axe_Stone"), ItemField.Durability, 75);
+            ModifyItem(Item.ByName("Raft.Axe"), ItemField.DisplayName, "Scrap Axe");
+            ModifyItem(Item.ByName("Raft.Axe"), ItemField.Durability, 160);
             ModifyItem(Item.ByName("Raft.Bow"), ItemField.Durability, 80);
             ModifyItem(Item.ByName("Raft.Spear_Plank"), ItemField.Durability, 30);
-            ModifyItem(Item.ByName("Raft.Spear_Plank"), ItemField.Durability, 80);
+            ModifyItem(Item.ByName("Raft.Spear_Scrap"), ItemField.Durability, 80);
             ModifyItem(Item.ByName("Raft.FishingRod"), ItemField.Durability, 20);
             ModifyItem(Item.ByName("Raft.FishingRod_Metal"), ItemField.Durability, 45);
             ModifyItem(Item.ByName("Raft.Hook_Plastic"), ItemField.Durability, 45);

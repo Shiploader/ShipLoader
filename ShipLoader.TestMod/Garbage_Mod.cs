@@ -17,6 +17,7 @@ namespace ShipLoader.TestMod
 			ModName = "Garbage",
 			ModDescription = "It's just garbage.",
 			ModVersion = "0.1",
+            GameVersion = "1.03",
             Priority = 1
 		};
 

@@ -18,6 +18,44 @@ void check(T func, char *str) {
 	}
 }
 
+std::string getProcessName(DWORD id) {
+
+	char processName[MAX_PATH];
+
+	HANDLE process = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, id);
+
+	if (process != NULL) {
+
+		HMODULE module;
+		DWORD nameLength;
+
+		if (EnumProcessModules(process, &module, sizeof(module), &nameLength)) {
+			GetModuleBaseNameA(process, module, processName, MAX_PATH);
+			return processName;
+		}
+	}
+
+	CloseHandle(process);
+
+	return "";
+}
+
+DWORD findProcess(std::string str) {
+
+	DWORD processes[1024], processCount;
+
+	if (!EnumProcesses(processes, sizeof(processes), &processCount))
+		return 0;
+
+	DWORD current = 0;
+
+	for (int i = 0; i < processCount; ++i)
+		if (getProcessName(current = processes[i]) == str)
+			return current;
+
+	return 0;
+}
+
 LPVOID allocString(HANDLE process, std::string str) {
 
 	DWORD size = (DWORD) str.size() + 1;
@@ -109,7 +147,8 @@ int help(std::string error, bool showDefault = true) {
 	if (showDefault) {
 
 		printf("Commands:\n");
-		printf("-hook <pId> <dllPath>\nHooks Harpoon into an exe, to hook it so you can execute code.\n");
+		printf("-hookid <pId> <dllPath>\nHooks Harpoon into an exe, to hook it so you can execute code.\n");
+		printf("-hook <pName> <dllPath>\nHooks Harpoon into an exe, to hook it so you can execute code.\n");
 
 	}
 
@@ -130,18 +169,36 @@ int main(int argc, char *argv[]) {
 	std::string fullPath = fullPathBuffer;
 	fullPath = fullPath.substr(0, fullPath.find_last_of('\\'));
 
-	if (arg == "-hook") {
+	if (arg == "-hookid") {
 
-		if (argc < 4) return help("Syntax: -hook <pId> <dllPath>", false);
+		if (argc < 4) return help("Syntax: -hookid <pId> <dllPath>", false);
 
 		std::string pid = argv[2];
 		std::string dll = fullPath + "\\" + argv[3];
 
 		int id = std::stoi(pid);
 
-		if (id == 0) return help("Syntax: -hook <pId> <dllPath>", false);
+		if (id == 0) return help("Syntax: -hookid <pId> <dllPath>", false);
 
 		Harpoon::hook((DWORD)id, dll);
+		return 1;
+	} else if (arg == "-hook") {
+
+		if (argc < 4) return help("Syntax: -hook <pName> <dllPath>", false);
+
+		std::string pid = argv[2];
+		std::string dll = fullPath + "\\" + argv[3];
+
+		DWORD id = findProcess(pid);
+
+		if (id == 0) {
+			printf("Couldn't resolve \"%s\"\n", pid.c_str());
+			return help("Syntax: -hook <pName> <dllPath>", false);
+		}
+
+		printf("Resolved %s as %u\n", pid.c_str(), id);
+
+		Harpoon::hook(id, dll);
 		return 1;
 	}
 

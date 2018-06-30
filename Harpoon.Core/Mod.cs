@@ -23,12 +23,15 @@ namespace Harpoon.Core
 		[DisplayName("Author")]
 		public string AuthorName { get; set; }
 
+        [DisplayName("Game version")]
+        public string GameVersion { get; set; }
+
         [DisplayName("Priority")]
         public int Priority { get; set; }
 
         public override string ToString()
         {
-            return ModName + " version " + ModVersion + " by " + AuthorName + " (" + ModDescription + ")";
+            return ModName + " version " + ModVersion + " by " + AuthorName + " (" + ModDescription + ") for game version " + GameVersion;
         }
 	}
 

@@ -35,6 +35,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Mods", "Mods", "{2309944D-C
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShipLoader.Balance", "ShipLoader.Balance\ShipLoader.Balance.csproj", "{B8F7E746-B315-4911-89EC-63E7ECC1A6E4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShipLoader.Obsidian", "ShipLoader.Obsidian\ShipLoader.Obsidian.csproj", "{450B9D9E-6E54-4EA4-9307-B2CFEFD36733}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -125,6 +127,18 @@ Global
 		{B8F7E746-B315-4911-89EC-63E7ECC1A6E4}.Release|x64.Build.0 = Release|Any CPU
 		{B8F7E746-B315-4911-89EC-63E7ECC1A6E4}.Release|x86.ActiveCfg = Release|Any CPU
 		{B8F7E746-B315-4911-89EC-63E7ECC1A6E4}.Release|x86.Build.0 = Release|Any CPU
+		{450B9D9E-6E54-4EA4-9307-B2CFEFD36733}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{450B9D9E-6E54-4EA4-9307-B2CFEFD36733}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{450B9D9E-6E54-4EA4-9307-B2CFEFD36733}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{450B9D9E-6E54-4EA4-9307-B2CFEFD36733}.Debug|x64.Build.0 = Debug|Any CPU
+		{450B9D9E-6E54-4EA4-9307-B2CFEFD36733}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{450B9D9E-6E54-4EA4-9307-B2CFEFD36733}.Debug|x86.Build.0 = Debug|Any CPU
+		{450B9D9E-6E54-4EA4-9307-B2CFEFD36733}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{450B9D9E-6E54-4EA4-9307-B2CFEFD36733}.Release|Any CPU.Build.0 = Release|Any CPU
+		{450B9D9E-6E54-4EA4-9307-B2CFEFD36733}.Release|x64.ActiveCfg = Release|Any CPU
+		{450B9D9E-6E54-4EA4-9307-B2CFEFD36733}.Release|x64.Build.0 = Release|Any CPU
+		{450B9D9E-6E54-4EA4-9307-B2CFEFD36733}.Release|x86.ActiveCfg = Release|Any CPU
+		{450B9D9E-6E54-4EA4-9307-B2CFEFD36733}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -137,6 +151,7 @@ Global
 		{7C2542CD-FFB7-4CB6-A94D-A2EF606EF4BE} = {1FD83968-B71C-4404-80FF-09B97C701BDA}
 		{883C4B5B-DF41-49BD-8EFE-567F1DBD793D} = {1FD83968-B71C-4404-80FF-09B97C701BDA}
 		{B8F7E746-B315-4911-89EC-63E7ECC1A6E4} = {2309944D-CDC6-42DC-9E31-A8C5EF53E65B}
+		{450B9D9E-6E54-4EA4-9307-B2CFEFD36733} = {2309944D-CDC6-42DC-9E31-A8C5EF53E65B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {9BFD3DE8-72D6-49D1-AE55-3BEF3E01E018}

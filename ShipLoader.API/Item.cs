@@ -127,7 +127,7 @@ namespace ShipLoader.API
         /// Convert this item to an Item_Base
         /// </summary>
         /// <returns>bool success</returns>
-        protected bool Init()
+        protected virtual bool Init()
         {
             if (id == 0 || owner == null)
             {
@@ -162,6 +162,12 @@ namespace ShipLoader.API
                 item.settings_equipment = new ItemInstance_Equipment(EquipSlotType.None);
                 item.settings_usable = new ItemInstance_Usable("", 0, 0, false, false, PlayerAnimation.None, PlayerAnimation.None, false, false, false, "");
 
+                FieldInfo barGradientf = typeof(Item_Base).GetField("barGradient", BindingFlags.NonPublic | BindingFlags.Instance);
+
+                //If items don't have a gradient and use durability, they can't be stored in the inventory
+                //So, just copy the Axe gradient (they are the same per tool)
+                barGradientf.SetValue(item, ItemManager.GetItemByName("Axe").BarGradient);
+
                 //'Cooking' Recipe (conversion recipe)
 
                 if (convertRecipe != null)
@@ -195,6 +201,8 @@ namespace ShipLoader.API
             itemsByName[fullName] = this;
             return true;
         }
+
+        protected virtual void InitPlayer(Network_Player player) { }
 
         private void RefreshRecipe()
         {
