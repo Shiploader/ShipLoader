@@ -263,3 +263,5 @@ __pycache__/
 ShipLoader.InjectDll/libraries/
 *.exp
 *.dll
+*.ipdb
+*.iobj

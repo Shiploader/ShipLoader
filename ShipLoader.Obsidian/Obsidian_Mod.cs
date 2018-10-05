@@ -1,6 +1,5 @@
 ﻿using Harpoon.Core;
 using ShipLoader.API;
-using System.ComponentModel;
 using UnityEngine;
 
 namespace ShipLoader.TestMod
@@ -13,8 +12,7 @@ namespace ShipLoader.TestMod
         protected Item obsidianSword;
 
         protected GameObject swordInstance;
-
-        [DisplayName("Metadata")]
+        
         public override ModMetadata Metadata => new ModMetadata()
         {
             AuthorName = "Nelus",

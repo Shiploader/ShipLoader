@@ -1,5 +1,4 @@
-﻿using System.ComponentModel;
-using Harpoon.Core;
+﻿using Harpoon.Core;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
@@ -142,7 +141,7 @@ namespace ShipLoader.API
     /// </summary>
     public class Raft_Mod : RaftMod
     {
-        [DisplayName("Metadata")]
+
         public override ModMetadata Metadata => new ModMetadata()
         {
             AuthorName = "RedBeet Interactive",
